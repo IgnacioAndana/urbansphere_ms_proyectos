@@ -2,33 +2,42 @@
  * Archivo: respuesta-proyecto.dto.ts
  * Ubicación: modules/projects/dto
  * Tipo: DTO de salida
- * Uso: respuestas de endpoints de proyectos
  */
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { RespuestaProyectoImagenDto } from '../../project-images/dto/respuesta-proyecto-imagen.dto';
 
 export class RespuestaProyectoDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'Residencial Las Palmas' })
-  nombre: string;
+  @ApiProperty({ example: 'Edificio Vista Parque' })
+  titulo: string;
 
-  @ApiProperty({ example: 'residencial-las-palmas' })
+  @ApiProperty({ example: 'edificio-vista-parque' })
   slug: string;
 
-  @ApiPropertyOptional({ example: 'Proyecto residencial de lujo' })
+  @ApiProperty({ example: 'Av. Providencia 1234, Providencia, Santiago' })
+  direccion: string;
+
+  @ApiProperty({ example: 250000000 })
+  precio: number;
+
+  @ApiPropertyOptional({ example: -33.4489 })
+  latitud?: number | null;
+
+  @ApiPropertyOptional({ example: -70.6693 })
+  longitud?: number | null;
+
+  @ApiPropertyOptional()
   descripcion?: string | null;
-
-  @ApiPropertyOptional({ example: 'Santiago' })
-  ciudad?: string | null;
-
-  @ApiPropertyOptional({ example: 'Av. Las Condes 1234' })
-  direccion?: string | null;
 
   @ApiProperty({ enum: EstadoProyecto, example: EstadoProyecto.ACTIVO })
   estado: EstadoProyecto;
+
+  @ApiPropertyOptional({ type: [RespuestaProyectoImagenDto] })
+  imagenes?: RespuestaProyectoImagenDto[];
 
   @ApiProperty({ example: '20-06-2025 14:30:45' })
   creadoEn: Date;

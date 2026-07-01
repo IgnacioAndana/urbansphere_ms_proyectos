@@ -2,13 +2,14 @@
  * Archivo: proyectos.service.ts
  * Ubicación: modules/projects/services
  * Tipo: Servicio de negocio
- * Métodos: crearProyecto, buscarProyectoPorId, listarProyectos, actualizarProyecto, eliminarProyecto
  */
 
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { ROLES } from '../../../common/constants/app.constants';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
 import { ExcepcionNegocio } from '../../../common/exceptions/excepcion-negocio.exception';
 import { generarSlug } from '../../../common/utils/generar-slug.util';
+import { RabbitmqProductor } from '../../../messaging/producers/rabbitmq.producer';
 import { CrearProyectoDto } from '../dto/crear-proyecto.dto';
 import { ActualizarProyectoDto } from '../dto/actualizar-proyecto.dto';
 import { RespuestaProyectoDto } from '../dto/respuesta-proyecto.dto';
@@ -17,34 +18,43 @@ import { ProyectosRepositorio } from '../repositories/proyectos.repository';
 
 @Injectable()
 export class ProyectosServicio {
-  constructor(private readonly proyectosRepositorio: ProyectosRepositorio) {}
+  constructor(
+    private readonly proyectosRepositorio: ProyectosRepositorio,
+    private readonly rabbitmqProductor: RabbitmqProductor,
+  ) {}
 
   async crearProyecto(dto: CrearProyectoDto): Promise<RespuestaProyectoDto> {
-    const slug = dto.slug || generarSlug(dto.nombre);
+    const slug = dto.slug || generarSlug(dto.titulo);
     await this.validarSlugUnico(slug);
 
     const proyecto = await this.proyectosRepositorio.crearProyecto({
-      nombre: dto.nombre,
+      titulo: dto.titulo,
       slug,
+      direccion: dto.direccion,
+      precio: dto.precio,
+      latitud: dto.latitud ?? null,
+      longitud: dto.longitud ?? null,
       descripcion: dto.descripcion ?? null,
-      ciudad: dto.ciudad ?? null,
-      direccion: dto.direccion ?? null,
       estado: dto.estado ?? EstadoProyecto.BORRADOR,
     });
+
+    await this.rabbitmqProductor.publicarProyectoCreado(proyecto.id);
 
     return this.mapearARespuesta(proyecto);
   }
 
-  async buscarProyectoPorId(id: number): Promise<RespuestaProyectoDto> {
+  async buscarProyectoPorId(id: number, rolUsuario: string): Promise<RespuestaProyectoDto> {
     const proyecto = await this.proyectosRepositorio.buscarProyectoPorId(id);
     if (!proyecto) {
       throw new ExcepcionNegocio('Proyecto no encontrado', HttpStatus.NOT_FOUND);
     }
+    this.validarAccesoConsulta(proyecto, rolUsuario);
     return this.mapearARespuesta(proyecto);
   }
 
-  async listarProyectos(): Promise<RespuestaProyectoDto[]> {
-    const proyectos = await this.proyectosRepositorio.listarProyectos();
+  async listarProyectos(rolUsuario: string): Promise<RespuestaProyectoDto[]> {
+    const soloActivos = rolUsuario === ROLES.USER;
+    const proyectos = await this.proyectosRepositorio.listarProyectos(soloActivos);
     return proyectos.map((p) => this.mapearARespuesta(p));
   }
 
@@ -62,11 +72,13 @@ export class ProyectosServicio {
     }
 
     const datos: Partial<ProyectoEntidad> = {};
-    if (dto.nombre !== undefined) datos.nombre = dto.nombre;
+    if (dto.titulo !== undefined) datos.titulo = dto.titulo;
     if (dto.slug !== undefined) datos.slug = dto.slug;
-    if (dto.descripcion !== undefined) datos.descripcion = dto.descripcion;
-    if (dto.ciudad !== undefined) datos.ciudad = dto.ciudad;
     if (dto.direccion !== undefined) datos.direccion = dto.direccion;
+    if (dto.precio !== undefined) datos.precio = dto.precio;
+    if (dto.latitud !== undefined) datos.latitud = dto.latitud;
+    if (dto.longitud !== undefined) datos.longitud = dto.longitud;
+    if (dto.descripcion !== undefined) datos.descripcion = dto.descripcion;
     if (dto.estado !== undefined) datos.estado = dto.estado;
 
     const actualizado = await this.proyectosRepositorio.actualizarProyecto(id, datos);
@@ -85,6 +97,12 @@ export class ProyectosServicio {
     await this.proyectosRepositorio.eliminarProyecto(id);
   }
 
+  private validarAccesoConsulta(proyecto: ProyectoEntidad, rolUsuario: string): void {
+    if (rolUsuario === ROLES.USER && proyecto.estado !== EstadoProyecto.ACTIVO) {
+      throw new ExcepcionNegocio('Proyecto no disponible', HttpStatus.NOT_FOUND);
+    }
+  }
+
   private async validarSlugUnico(slug: string, excluirId?: number): Promise<void> {
     const existente = await this.proyectosRepositorio.buscarProyectoPorSlug(slug);
     if (existente && existente.id !== excluirId) {
@@ -95,11 +113,13 @@ export class ProyectosServicio {
   mapearARespuesta(proyecto: ProyectoEntidad): RespuestaProyectoDto {
     return {
       id: proyecto.id,
-      nombre: proyecto.nombre,
+      titulo: proyecto.titulo,
       slug: proyecto.slug,
-      descripcion: proyecto.descripcion,
-      ciudad: proyecto.ciudad,
       direccion: proyecto.direccion,
+      precio: Number(proyecto.precio),
+      latitud: proyecto.latitud !== null ? Number(proyecto.latitud) : null,
+      longitud: proyecto.longitud !== null ? Number(proyecto.longitud) : null,
+      descripcion: proyecto.descripcion,
       estado: proyecto.estado,
       creadoEn: proyecto.creadoEn,
       actualizadoEn: proyecto.actualizadoEn,

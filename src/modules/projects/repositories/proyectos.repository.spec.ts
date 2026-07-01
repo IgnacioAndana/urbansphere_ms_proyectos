@@ -23,8 +23,10 @@ describe('ProyectosRepositorio', () => {
 
   const proyectoMock = {
     id: 1,
-    nombre: 'Test',
+    titulo: 'Test',
     slug: 'test',
+    direccion: 'Calle 123',
+    precio: 1000000,
     estado: EstadoProyecto.BORRADOR,
   };
 
@@ -49,7 +51,12 @@ describe('ProyectosRepositorio', () => {
   });
 
   it('debe crear proyecto', async () => {
-    const resultado = await repositorio.crearProyecto({ nombre: 'Test', slug: 'test' });
+    const resultado = await repositorio.crearProyecto({
+      titulo: 'Test',
+      slug: 'test',
+      direccion: 'Calle 123',
+      precio: 1000000,
+    });
     expect(resultado.id).toBe(1);
     expect(typeormRepo.save).toHaveBeenCalled();
   });

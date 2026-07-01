@@ -29,12 +29,12 @@ export class S3Servicio {
     });
   }
 
-  async subirImagenPropiedad(
-    propiedadId: number,
+  async subirImagenProyecto(
+    proyectoId: number,
     archivo: Express.Multer.File,
   ): Promise<string> {
     const extension = archivo.originalname.split('.').pop() || 'jpg';
-    const clave = `properties/${propiedadId}/${randomUUID()}.${extension}`;
+    const clave = `projects/${proyectoId}/${randomUUID()}.${extension}`;
 
     await this.cliente.send(
       new PutObjectCommand({

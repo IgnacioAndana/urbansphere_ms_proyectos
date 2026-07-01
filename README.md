@@ -1,6 +1,6 @@
 # MS Projects — UrbanSphere
 
-Microservicio de proyectos inmobiliarios de la plataforma **UrbanSphere**. Gestiona proyectos, propiedades, imágenes (S3), características, tours virtuales y publica eventos RabbitMQ al crear propiedades.
+Microservicio de **catálogo comercial** de la plataforma **UrbanSphere**. Un proyecto = una publicación inmobiliaria (título, dirección, precio, geolocalización, descripción e imágenes en S3). Publica eventos RabbitMQ al crear proyectos.
 
 | Dato | Valor |
 |------|-------|
@@ -11,11 +11,26 @@ Microservicio de proyectos inmobiliarios de la plataforma **UrbanSphere**. Gesti
 
 ---
 
+## Roles y permisos
+
+Los roles vienen en el JWT emitido por **MS Users** (`admin`, `agent`, `user`).
+
+| Acción | admin | agent | user |
+|--------|:-----:|:-----:|:----:|
+| CRUD proyectos | ✅ | ✅ | ❌ |
+| CRUD imágenes de proyecto | ✅ | ✅ | ❌ |
+| Consultar proyectos e imágenes | ✅ (todos) | ✅ (todos) | ✅ (solo `activo`) |
+| Marcar "me interesa" | — | — | ✅ en **MS Users** |
+
+> **"Me interesa"** no vive en este microservicio. Los usuarios normales registran interés en **MS Users** con `POST /api/solicitudes-interes` (tabla `solicitudes_interes`, campo `proyecto_id`).
+
+---
+
 ## Requisitos previos
 
 - **Node.js** 20+ (recomendado 22)
 - **npm** 10+
-- **MySQL** 8.x con el esquema `porsusde_urbansphere` creado y tablas inicializadas
+- **MySQL** 8.x con el esquema `porsusde_urbansphere`
 - **JWT** emitido por MS Users (mismo `JWT_SECRET`)
 - **RabbitMQ** (opcional; el servicio arranca aunque no esté disponible)
 - **AWS S3** (opcional; para subida de imágenes por archivo)
@@ -64,25 +79,30 @@ DB_SYNCHRONIZE=false
 DB_LOGGING=false
 ```
 
-> Usa el **mismo** `JWT_SECRET` que MS Users. Los tokens se obtienen iniciando sesión en MS Users (`POST /api/autenticacion/iniciar-sesion`).
+> Usa el **mismo** `JWT_SECRET` que MS Users. Los tokens se obtienen con `POST /api/autenticacion/iniciar-sesion` en MS Users (puerto 3001).
 
 ### 3. Base de datos
 
-Ejecuta el script SQL **antes** de levantar el servicio (si aún no lo hiciste con MS Users):
+**Instalación nueva** (BD vacía):
 
 ```bash
 mysql -u TU_USUARIO -p -h TU_HOST porsusde_urbansphere < database/init-all.sql
 ```
 
+**BD existente con usuarios** (tu caso en producción): **no** ejecutes `init-all.sql` completo. En Navicat ejecuta solo la migración:
+
+```text
+database/migracion-simplificar-proyectos.sql
+```
+
+Ese script elimina las tablas antiguas (`propiedades`, `propiedad_imagenes`, etc.) y recrea `proyectos`, `proyecto_imagenes` e tablas MS AI con `proyecto_id`. **No toca** tablas de MS Users.
+
 **Tablas que usa este microservicio:**
 
 | Tabla | Descripción |
 |-------|-------------|
-| `proyectos` | Proyectos inmobiliarios |
-| `propiedades` | Unidades dentro de un proyecto |
-| `propiedad_imagenes` | URLs de imágenes en S3 |
-| `propiedad_caracteristicas` | Atributos clave-valor de propiedades |
-| `tours_virtuales` | Tours virtuales por propiedad |
+| `proyectos` | Publicaciones del catálogo comercial |
+| `proyecto_imagenes` | URLs S3, portada y panorámica 360° |
 
 > También lee `usuarios` (solo validación JWT).
 
@@ -139,17 +159,17 @@ curl -X POST http://localhost:3001/api/autenticacion/iniciar-sesion \
 
 Base URL: `http://localhost:3002/api`
 
-Reemplaza `TU_TOKEN_ACCESO` por el token de MS Users.
+Reemplaza `TU_TOKEN_ACCESO` por el token de MS Users (rol `admin` o `agent` para crear/editar).
 
 ### Proyectos
 
-#### POST `/api/proyectos` — Crear proyecto
+#### POST `/api/proyectos` — Crear proyecto (admin, agent)
 
 ```bash
 curl -X POST http://localhost:3002/api/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"nombre\":\"Residencial Las Palmas\",\"ciudad\":\"Santiago\",\"estado\":\"borrador\"}"
+  -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234, Providencia, Santiago\",\"precio\":250000000,\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial con vista al parque\",\"estado\":\"borrador\"}"
 ```
 
 #### GET `/api/proyectos` — Listar proyectos
@@ -158,6 +178,8 @@ curl -X POST http://localhost:3002/api/proyectos \
 curl -X GET http://localhost:3002/api/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
+
+> Usuarios `user` solo ven proyectos con `estado: activo`.
 
 #### GET `/api/proyectos/:id` — Obtener proyecto
 
@@ -182,76 +204,51 @@ curl -X DELETE http://localhost:3002/api/proyectos/1 \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
-### Propiedades
+### Imágenes de proyecto
 
-#### POST `/api/propiedades` — Crear propiedad (publica evento `property.created`)
+#### POST `/api/proyectos/:proyectoId/imagenes` — Por URL
 
 ```bash
-curl -X POST http://localhost:3002/api/propiedades \
+curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"proyectoId\":1,\"titulo\":\"Depto 3D/2B\",\"precio\":185000000,\"dormitorios\":3,\"banos\":2,\"areaM2\":95.5}"
+  -d "{\"urlS3\":\"https://urbansphere.s3.amazonaws.com/projects/1/img.jpg\",\"esPortada\":true,\"orden\":0}"
 ```
 
-#### GET `/api/propiedades?proyectoId=1` — Listar por proyecto
+#### POST `/api/proyectos/:proyectoId/imagenes` — Subir archivo a S3
 
 ```bash
-curl -X GET "http://localhost:3002/api/propiedades?proyectoId=1" \
-  -H "Authorization: Bearer TU_TOKEN_ACCESO"
+curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
+  -F "archivo=@./foto.jpg" \
+  -F "esPortada=true" \
+  -F "esPanoramica360=false"
 ```
 
-### Imágenes, características y tours
+#### Imagen panorámica 360°
 
 ```bash
-# Imagen por URL
-curl -X POST http://localhost:3002/api/propiedades/1/imagenes \
+curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
-  -H "Content-Type: application/json" \
-  -d "{\"urlS3\":\"https://urbansphere.s3.amazonaws.com/properties/1/img.jpg\",\"esPortada\":true}"
-
-# Característica
-curl -X POST http://localhost:3002/api/propiedades/1/caracteristicas \
-  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
-  -H "Content-Type: application/json" \
-  -d "{\"nombreCaracteristica\":\"Estacionamiento\",\"valorCaracteristica\":\"2 vehículos\"}"
-
-# Tour virtual
-curl -X POST http://localhost:3002/api/propiedades/1/tours-virtuales \
-  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
-  -H "Content-Type: application/json" \
-  -d "{\"estado\":\"pendiente\"}"
+  -F "archivo=@./panorama.jpg" \
+  -F "esPanoramica360=true"
 ```
 
 ---
 
 ## Endpoints
 
-| Método | Ruta | Descripción | Auth |
-|--------|------|-------------|------|
-| POST | `/api/proyectos` | Crear proyecto | JWT |
-| GET | `/api/proyectos` | Listar proyectos | JWT |
-| GET | `/api/proyectos/:id` | Obtener proyecto | JWT |
-| PATCH | `/api/proyectos/:id` | Actualizar proyecto | JWT |
-| DELETE | `/api/proyectos/:id` | Eliminar proyecto | JWT |
-| POST | `/api/propiedades` | Crear propiedad (+ evento RabbitMQ) | JWT |
-| GET | `/api/propiedades` | Listar propiedades | JWT |
-| GET | `/api/propiedades?proyectoId=:id` | Filtrar por proyecto | JWT |
-| GET | `/api/propiedades/:id` | Obtener propiedad | JWT |
-| PATCH | `/api/propiedades/:id` | Actualizar propiedad | JWT |
-| DELETE | `/api/propiedades/:id` | Eliminar propiedad | JWT |
-| POST | `/api/propiedades/:id/imagenes` | Agregar imagen | JWT |
-| GET | `/api/propiedades/:id/imagenes` | Listar imágenes | JWT |
-| PATCH | `/api/propiedades/:id/imagenes/:imagenId` | Actualizar imagen | JWT |
-| DELETE | `/api/propiedades/:id/imagenes/:imagenId` | Eliminar imagen | JWT |
-| POST | `/api/propiedades/:id/caracteristicas` | Agregar característica | JWT |
-| GET | `/api/propiedades/:id/caracteristicas` | Listar características | JWT |
-| PATCH | `/api/propiedades/:id/caracteristicas/:caractId` | Actualizar característica | JWT |
-| DELETE | `/api/propiedades/:id/caracteristicas/:caractId` | Eliminar característica | JWT |
-| POST | `/api/propiedades/:id/tours-virtuales` | Crear tour virtual | JWT |
-| GET | `/api/propiedades/:id/tours-virtuales` | Listar tours | JWT |
-| GET | `/api/tours-virtuales/:id` | Obtener tour | JWT |
-| PATCH | `/api/tours-virtuales/:id` | Actualizar tour | JWT |
-| DELETE | `/api/tours-virtuales/:id` | Eliminar tour | JWT |
+| Método | Ruta | Descripción | Roles |
+|--------|------|-------------|-------|
+| POST | `/api/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
+| GET | `/api/proyectos` | Listar proyectos | admin, agent, user |
+| GET | `/api/proyectos/:id` | Obtener proyecto | admin, agent, user |
+| PATCH | `/api/proyectos/:id` | Actualizar proyecto | admin, agent |
+| DELETE | `/api/proyectos/:id` | Eliminar proyecto | admin, agent |
+| POST | `/api/proyectos/:proyectoId/imagenes` | Agregar imagen (URL o archivo) | admin, agent |
+| GET | `/api/proyectos/:proyectoId/imagenes` | Listar imágenes | admin, agent, user |
+| PATCH | `/api/proyectos/:proyectoId/imagenes/:id` | Actualizar imagen | admin, agent |
+| DELETE | `/api/proyectos/:proyectoId/imagenes/:id` | Eliminar imagen | admin, agent |
 
 ---
 
@@ -260,7 +257,7 @@ curl -X POST http://localhost:3002/api/propiedades/1/tours-virtuales \
 ```text
 Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere)
                               ↓
-                    RabbitMQ (property.created)
+                    RabbitMQ (project.created)
                               ↓
                            MS AI
 ```
@@ -270,20 +267,19 @@ Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere
 - NestJS + TypeScript
 - TypeORM + MySQL
 - JWT (validación con tokens de MS Users)
-- RabbitMQ (amqplib) — evento `property.created`
-- AWS S3 — imágenes de propiedades
+- RabbitMQ (amqplib) — evento `project.created`
+- AWS S3 — imágenes en `projects/{proyectoId}/`
 - Swagger / OpenAPI
 - Jest + Supertest
 
-## Modelo de datos (columnas en español)
+## Modelo de datos
 
 | Tabla | Columnas principales |
 |-------|---------------------|
-| `proyectos` | `nombre`, `slug`, `descripcion`, `ciudad`, `direccion`, `estado`, `creado_en`, `actualizado_en` |
-| `propiedades` | `proyecto_id`, `titulo`, `descripcion`, `precio`, `dormitorios`, `banos`, `area_m2`, `estado` |
-| `propiedad_imagenes` | `propiedad_id`, `url_s3`, `es_portada`, `orden`, `creado_en` |
-| `propiedad_caracteristicas` | `propiedad_id`, `nombre_caracteristica`, `valor_caracteristica` |
-| `tours_virtuales` | `propiedad_id`, `url_tour`, `estado`, `creado_en` |
+| `proyectos` | `titulo`, `slug`, `direccion`, `precio`, `latitud`, `longitud`, `descripcion`, `estado`, `creado_en`, `actualizado_en` |
+| `proyecto_imagenes` | `proyecto_id`, `url_s3`, `es_portada`, `es_panoramica_360`, `orden`, `creado_en` |
+
+Estados de proyecto: `borrador`, `activo`, `inactivo`, `archivado`.
 
 ## Formato de fechas
 
@@ -298,16 +294,16 @@ El interceptor `FormatearFechasInterceptor` aplica el formato automáticamente.
 
 ## RabbitMQ
 
-Al crear una propiedad se publica:
+Al crear un proyecto se publica:
 
 ```json
 {
-  "event": "property.created",
-  "propertyId": 10
+  "event": "project.created",
+  "projectId": 10
 }
 ```
 
-Exchange: `urbansphere.events` · Routing key: `property.created`
+Exchange: `urbansphere.events` · Routing key: `project.created`
 
 Si RabbitMQ no está disponible, el servicio registra un warning y continúa.
 
@@ -331,7 +327,7 @@ Si RabbitMQ no está disponible, el servicio registra un warning y continúa.
 
 ```bash
 npm run test        # Unitarios
-npm run test:cov    # Cobertura (controllers, services, repositories ≥ 80%)
+npm run test:cov    # Cobertura
 npm run test:e2e    # E2E — requiere .env con BD accesible
 ```
 
@@ -341,7 +337,7 @@ Para E2E autenticado, define en `.env`:
 E2E_JWT_TOKEN=eyJhbGciOiJIUzI1NiIs...
 ```
 
-(obtenido desde MS Users tras iniciar sesión)
+(obtenido desde MS Users tras iniciar sesión con rol admin o agent)
 
 ---
 
@@ -350,19 +346,17 @@ E2E_JWT_TOKEN=eyJhbGciOiJIUzI1NiIs...
 ```text
 MS_PROYECTOS/
 ├── database/
-│   └── init-all.sql          # Esquema compartido (13 tablas)
+│   ├── init-all.sql                        # Esquema completo (instalación nueva)
+│   └── migracion-simplificar-proyectos.sql # Migración manual (BD con usuarios)
 ├── src/
 │   ├── config/               # database, jwt, rabbitmq, aws
-│   ├── common/               # guards, filters, interceptors, utils, enums
+│   ├── common/               # guards, roles, filters, interceptors
 │   ├── messaging/            # productor RabbitMQ
 │   ├── modules/
 │   │   ├── auth/             # validación JWT
 │   │   ├── storage/          # AWS S3
 │   │   ├── projects/         # proyectos
-│   │   ├── properties/       # propiedades
-│   │   ├── property-images/  # propiedad_imagenes
-│   │   ├── property-features/# propiedad_caracteristicas
-│   │   └── virtual-tours/    # tours_virtuales
+│   │   └── project-images/   # proyecto_imagenes
 │   ├── app.module.ts
 │   └── main.ts
 ├── test/                     # E2E
@@ -376,10 +370,11 @@ MS_PROYECTOS/
 | Problema | Posible causa | Solución |
 |----------|---------------|----------|
 | `401 Unauthorized` | Token inválido o `JWT_SECRET` distinto a MS Users | Usa el mismo `JWT_SECRET` y un token reciente |
+| `403 Forbidden` | Rol insuficiente | CRUD requiere `admin` o `agent` |
 | `ECONNREFUSED` MySQL | BD no accesible | Verifica `DB_HOST`, firewall y credenciales |
-| `Table doesn't exist` | Script SQL no ejecutado | Ejecuta `database/init-all.sql` |
+| `Table doesn't exist` | Migración no ejecutada | Ejecuta `migracion-simplificar-proyectos.sql` en Navicat |
 | Evento RabbitMQ no llega | RabbitMQ caído | Verifica `RABBITMQ_URL`; el MS sigue funcionando sin él |
-| Error al subir imagen S3 | Credenciales AWS incorrectas | Revisa variables `AWS_*` o usa `urlS3` en JSON |
+| Error al subir imagen S3 | Credenciales AWS incorrectas | Revisa `AWS_*` o usa `urlS3` en JSON |
 | Puerto en uso | Otro proceso en 3002 | Cambia `PORT` en `.env` |
 
 ---
@@ -387,5 +382,6 @@ MS_PROYECTOS/
 ## Referencias
 
 - Plantilla del ecosistema: [`MICROSERVICIO_TEMPLATE.md`](./MICROSERVICIO_TEMPLATE.md)
-- Script SQL compartido: [`database/init-all.sql`](./database/init-all.sql)
-- MS Users (login JWT): `../MS_USUARIOS/README.md`
+- Script SQL completo: [`database/init-all.sql`](./database/init-all.sql)
+- Migración (BD existente): [`database/migracion-simplificar-proyectos.sql`](./database/migracion-simplificar-proyectos.sql)
+- MS Users (login JWT, solicitudes de interés): `../MS_USUARIOS/README.md`

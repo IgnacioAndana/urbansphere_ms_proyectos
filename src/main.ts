@@ -18,7 +18,7 @@ async function bootstrap(): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle('UrbanSphere - MS Proyectos')
     .setDescription(
-      'Microservicio de proyectos inmobiliarios, propiedades, imágenes, características y tours virtuales',
+      'Microservicio de catálogo comercial: proyectos inmobiliarios e imágenes (S3). Roles: admin/agent CRUD, user consulta activos.',
     )
     .setVersion('1.0')
     .addBearerAuth()

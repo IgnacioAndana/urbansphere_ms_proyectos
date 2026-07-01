@@ -8,6 +8,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
 import { ProyectoEntidad } from '../entities/proyecto.entity';
 
 @Injectable()
@@ -30,8 +31,11 @@ export class ProyectosRepositorio {
     return this.repositorio.findOne({ where: { slug } });
   }
 
-  async listarProyectos(): Promise<ProyectoEntidad[]> {
-    return this.repositorio.find({ order: { creadoEn: 'DESC' } });
+  async listarProyectos(soloActivos = false): Promise<ProyectoEntidad[]> {
+    return this.repositorio.find({
+      where: soloActivos ? { estado: EstadoProyecto.ACTIVO } : {},
+      order: { creadoEn: 'DESC' },
+    });
   }
 
   async actualizarProyecto(

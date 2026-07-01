@@ -20,19 +20,25 @@ export class ProyectoEntidad {
   id: number;
 
   @Column({ type: 'varchar', length: 255 })
-  nombre: string;
+  titulo: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   slug: string;
 
+  @Column({ type: 'varchar', length: 500 })
+  direccion: string;
+
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  precio: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  latitud: number | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  longitud: number | null;
+
   @Column({ type: 'text', nullable: true })
   descripcion: string | null;
-
-  @Column({ type: 'varchar', length: 150, nullable: true })
-  ciudad: string | null;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  direccion: string | null;
 
   @Column({
     type: 'enum',

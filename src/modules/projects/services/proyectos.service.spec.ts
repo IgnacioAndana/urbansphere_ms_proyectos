@@ -5,11 +5,12 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus } from '@nestjs/common';
 import { ProyectosServicio } from './proyectos.service';
 import { ProyectosRepositorio } from '../repositories/proyectos.repository';
 import { ExcepcionNegocio } from '../../../common/exceptions/excepcion-negocio.exception';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { ROLES } from '../../../common/constants/app.constants';
+import { RabbitmqProductor } from '../../../messaging/producers/rabbitmq.producer';
 
 describe('ProyectosServicio', () => {
   let servicio: ProyectosServicio;
@@ -17,11 +18,13 @@ describe('ProyectosServicio', () => {
 
   const proyectoMock = {
     id: 1,
-    nombre: 'Residencial Las Palmas',
-    slug: 'residencial-las-palmas',
+    titulo: 'Edificio Vista Parque',
+    slug: 'edificio-vista-parque',
+    direccion: 'Av. Providencia 1234, Providencia, Santiago',
+    precio: 250000000,
+    latitud: -33.4489,
+    longitud: -70.6693,
     descripcion: 'Proyecto de prueba',
-    ciudad: 'Santiago',
-    direccion: 'Av. Test 123',
     estado: EstadoProyecto.BORRADOR,
     creadoEn: new Date(),
     actualizadoEn: new Date(),
@@ -42,6 +45,10 @@ describe('ProyectosServicio', () => {
             eliminarProyecto: jest.fn(),
           },
         },
+        {
+          provide: RabbitmqProductor,
+          useValue: { publicarProyectoCreado: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -54,41 +61,63 @@ describe('ProyectosServicio', () => {
     repositorio.crearProyecto.mockResolvedValue(proyectoMock as never);
 
     const resultado = await servicio.crearProyecto({
-      nombre: 'Residencial Las Palmas',
+      titulo: 'Edificio Vista Parque',
+      direccion: 'Av. Providencia 1234, Providencia, Santiago',
+      precio: 250000000,
     });
 
-    expect(resultado.nombre).toBe('Residencial Las Palmas');
-    expect(resultado.slug).toBe('residencial-las-palmas');
+    expect(resultado.titulo).toBe('Edificio Vista Parque');
+    expect(resultado.slug).toBe('edificio-vista-parque');
   });
 
   it('debe lanzar error si el slug ya existe', async () => {
     repositorio.buscarProyectoPorSlug.mockResolvedValue(proyectoMock as never);
 
     await expect(
-      servicio.crearProyecto({ nombre: 'Residencial Las Palmas', slug: 'residencial-las-palmas' }),
+      servicio.crearProyecto({
+        titulo: 'Edificio Vista Parque',
+        direccion: 'Av. Providencia 1234',
+        precio: 250000000,
+        slug: 'edificio-vista-parque',
+      }),
     ).rejects.toThrow(ExcepcionNegocio);
   });
 
   it('debe buscar proyecto por id', async () => {
     repositorio.buscarProyectoPorId.mockResolvedValue(proyectoMock as never);
-    const resultado = await servicio.buscarProyectoPorId(1);
+    const resultado = await servicio.buscarProyectoPorId(1, ROLES.ADMIN);
     expect(resultado.id).toBe(1);
+  });
+
+  it('debe ocultar borradores a usuarios normales', async () => {
+    repositorio.buscarProyectoPorId.mockResolvedValue(proyectoMock as never);
+    await expect(servicio.buscarProyectoPorId(1, ROLES.USER)).rejects.toThrow(
+      ExcepcionNegocio,
+    );
   });
 
   it('debe lanzar error si proyecto no existe', async () => {
     repositorio.buscarProyectoPorId.mockResolvedValue(null);
-    await expect(servicio.buscarProyectoPorId(999)).rejects.toThrow(ExcepcionNegocio);
+    await expect(servicio.buscarProyectoPorId(999, ROLES.ADMIN)).rejects.toThrow(
+      ExcepcionNegocio,
+    );
+  });
+
+  it('debe listar solo activos para user', async () => {
+    repositorio.listarProyectos.mockResolvedValue([proyectoMock as never]);
+    await servicio.listarProyectos(ROLES.USER);
+    expect(repositorio.listarProyectos).toHaveBeenCalledWith(true);
   });
 
   it('debe actualizar proyecto', async () => {
     repositorio.buscarProyectoPorId.mockResolvedValue(proyectoMock as never);
     repositorio.actualizarProyecto.mockResolvedValue({
       ...proyectoMock,
-      nombre: 'Actualizado',
+      titulo: 'Actualizado',
     } as never);
 
-    const resultado = await servicio.actualizarProyecto(1, { nombre: 'Actualizado' });
-    expect(resultado.nombre).toBe('Actualizado');
+    const resultado = await servicio.actualizarProyecto(1, { titulo: 'Actualizado' });
+    expect(resultado.titulo).toBe('Actualizado');
   });
 
   it('debe eliminar proyecto', async () => {

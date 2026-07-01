@@ -47,13 +47,14 @@ describe('Proyectos (e2e)', () => {
       .post('/api/proyectos')
       .set(authHeader())
       .send({
-        nombre: `Proyecto E2E ${Date.now()}`,
-        ciudad: 'Santiago',
+        titulo: `Proyecto E2E ${Date.now()}`,
+        direccion: 'Av. Test 123, Santiago',
+        precio: 250000000,
         estado: 'borrador',
       })
       .expect(201);
 
-    expect(respuesta.body.nombre).toBeDefined();
+    expect(respuesta.body.titulo).toBeDefined();
     expect(respuesta.body.slug).toBeDefined();
     proyectoId = respuesta.body.id;
   });

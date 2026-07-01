@@ -6,34 +6,55 @@
  */
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
 
 export class ActualizarProyectoDto {
-  @ApiPropertyOptional({ example: 'Residencial Las Palmas II' })
+  @ApiPropertyOptional({ example: 'Edificio Vista Parque II' })
   @IsOptional()
   @IsString()
-  nombre?: string;
+  @MaxLength(255)
+  titulo?: string;
 
-  @ApiPropertyOptional({ example: 'residencial-las-palmas-ii' })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  direccion?: string;
+
+  @ApiPropertyOptional({ example: 265000000 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  precio?: number;
+
+  @ApiPropertyOptional({ example: -33.4489 })
+  @IsOptional()
+  @IsNumber()
+  latitud?: number;
+
+  @ApiPropertyOptional({ example: -70.6693 })
+  @IsOptional()
+  @IsNumber()
+  longitud?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  descripcion?: string;
+
+  @ApiPropertyOptional({ example: 'edificio-vista-parque-ii' })
   @IsOptional()
   @IsString()
   slug?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  descripcion?: string;
-
-  @ApiPropertyOptional({ example: 'Santiago' })
-  @IsOptional()
-  @IsString()
-  ciudad?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  direccion?: string;
 
   @ApiPropertyOptional({ enum: EstadoProyecto })
   @IsOptional()

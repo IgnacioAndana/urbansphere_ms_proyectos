@@ -22,7 +22,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { ROLES } from '../../../common/constants/app.constants';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { UsuarioActual } from '../../../common/decorators/usuario-actual.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { CargaJwt } from '../../auth/interfaces/carga-jwt.interface';
 import { CrearProyectoDto } from '../dto/crear-proyecto.dto';
 import { ActualizarProyectoDto } from '../dto/actualizar-proyecto.dto';
 import { RespuestaProyectoDto } from '../dto/respuesta-proyecto.dto';
@@ -30,34 +35,43 @@ import { ProyectosServicio } from '../services/proyectos.service';
 
 @ApiTags('Proyectos')
 @Controller('proyectos')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class ProyectosControlador {
   constructor(private readonly proyectosServicio: ProyectosServicio) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear un nuevo proyecto inmobiliario' })
+  @Roles(ROLES.ADMIN, ROLES.AGENT)
+  @ApiOperation({ summary: 'Crear proyecto inmobiliario (admin, agent)' })
   @ApiResponse({ status: 201, type: RespuestaProyectoDto })
   crearProyecto(@Body() dto: CrearProyectoDto): Promise<RespuestaProyectoDto> {
     return this.proyectosServicio.crearProyecto(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos los proyectos' })
+  @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
+  @ApiOperation({
+    summary: 'Listar proyectos (user: solo activos; admin/agent: todos)',
+  })
   @ApiResponse({ status: 200, type: [RespuestaProyectoDto] })
-  listarProyectos(): Promise<RespuestaProyectoDto[]> {
-    return this.proyectosServicio.listarProyectos();
+  listarProyectos(@UsuarioActual() usuario: CargaJwt): Promise<RespuestaProyectoDto[]> {
+    return this.proyectosServicio.listarProyectos(usuario.rol);
   }
 
   @Get(':id')
+  @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
   @ApiOperation({ summary: 'Obtener proyecto por ID' })
   @ApiResponse({ status: 200, type: RespuestaProyectoDto })
-  buscarProyectoPorId(@Param('id', ParseIntPipe) id: number): Promise<RespuestaProyectoDto> {
-    return this.proyectosServicio.buscarProyectoPorId(id);
+  buscarProyectoPorId(
+    @Param('id', ParseIntPipe) id: number,
+    @UsuarioActual() usuario: CargaJwt,
+  ): Promise<RespuestaProyectoDto> {
+    return this.proyectosServicio.buscarProyectoPorId(id, usuario.rol);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar proyecto' })
+  @Roles(ROLES.ADMIN, ROLES.AGENT)
+  @ApiOperation({ summary: 'Actualizar proyecto (admin, agent)' })
   @ApiResponse({ status: 200, type: RespuestaProyectoDto })
   actualizarProyecto(
     @Param('id', ParseIntPipe) id: number,
@@ -67,7 +81,8 @@ export class ProyectosControlador {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar proyecto' })
+  @Roles(ROLES.ADMIN, ROLES.AGENT)
+  @ApiOperation({ summary: 'Eliminar proyecto (admin, agent)' })
   @ApiResponse({ status: 204 })
   async eliminarProyecto(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.proyectosServicio.eliminarProyecto(id);

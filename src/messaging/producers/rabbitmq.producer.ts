@@ -2,13 +2,12 @@
  * Archivo: rabbitmq.producer.ts
  * Ubicación: messaging/producers
  * Tipo: Productor RabbitMQ
- * Contenido: publica eventos de dominio (property.created)
  */
 
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { connect, Channel, ChannelModel } from 'amqplib';
-import { PropiedadCreadaEvento } from '../events/propiedad-creada.event';
+import { ProyectoCreadoEvento } from '../events/proyecto-creado.event';
 
 @Injectable()
 export class RabbitmqProductor implements OnModuleDestroy {
@@ -18,17 +17,17 @@ export class RabbitmqProductor implements OnModuleDestroy {
 
   constructor(private readonly configServicio: ConfigService) {}
 
-  async publicarPropiedadCreada(propiedadId: number): Promise<void> {
-    const evento: PropiedadCreadaEvento = {
-      event: 'property.created',
-      propertyId: propiedadId,
+  async publicarProyectoCreado(proyectoId: number): Promise<void> {
+    const evento: ProyectoCreadoEvento = {
+      event: 'project.created',
+      projectId: proyectoId,
     };
 
     try {
       await this.asegurarCanal();
       const exchange = this.configServicio.get<string>('rabbitmq.exchange') || 'urbansphere.events';
       const routingKey =
-        this.configServicio.get<string>('rabbitmq.routingKeyPropertyCreated') || 'property.created';
+        this.configServicio.get<string>('rabbitmq.routingKeyProjectCreated') || 'project.created';
 
       await this.canal!.assertExchange(exchange, 'topic', { durable: true });
       this.canal!.publish(exchange, routingKey, Buffer.from(JSON.stringify(evento)), {
@@ -36,10 +35,10 @@ export class RabbitmqProductor implements OnModuleDestroy {
         contentType: 'application/json',
       });
 
-      this.logger.log(`Evento publicado: property.created (propiedadId=${propiedadId})`);
+      this.logger.log(`Evento publicado: project.created (proyectoId=${proyectoId})`);
     } catch (error) {
       this.logger.warn(
-        `No se pudo publicar evento property.created: ${error instanceof Error ? error.message : error}`,
+        `No se pudo publicar evento project.created: ${error instanceof Error ? error.message : error}`,
       );
     }
   }
