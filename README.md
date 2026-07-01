@@ -117,15 +117,6 @@ npm run build
 npm run start:prod
 ```
 
-### Docker
-
-```bash
-docker compose up --build
-```
-
-- API: `http://localhost:3002`
-- MySQL del compose: puerto `3308`
-
 ---
 
 ## Verificar que funciona
@@ -375,9 +366,7 @@ MS_PROYECTOS/
 │   ├── app.module.ts
 │   └── main.ts
 ├── test/                     # E2E
-├── .env.example
-├── Dockerfile
-└── docker-compose.yml
+└── .env.example
 ```
 
 ---
