@@ -21,7 +21,6 @@ describe('Proyectos (e2e)', () => {
     }).compile();
 
     app = modulo.createNestApplication();
-    app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
@@ -37,14 +36,14 @@ describe('Proyectos (e2e)', () => {
   const authHeader = () =>
     tokenAcceso ? { Authorization: `Bearer ${tokenAcceso}` } : {};
 
-  it('POST /api/proyectos — crear proyecto (JWT)', async () => {
+  it('POST /proyectos — crear proyecto (JWT)', async () => {
     if (!tokenAcceso) {
       console.warn('E2E_JWT_TOKEN no definido — omitiendo prueba autenticada');
       return;
     }
 
     const respuesta = await request(app.getHttpServer())
-      .post('/api/proyectos')
+      .post('/proyectos')
       .set(authHeader())
       .send({
         titulo: `Proyecto E2E ${Date.now()}`,
@@ -59,22 +58,22 @@ describe('Proyectos (e2e)', () => {
     proyectoId = respuesta.body.id;
   });
 
-  it('GET /api/proyectos/:id — obtener proyecto (JWT)', async () => {
+  it('GET /proyectos/:id — obtener proyecto (JWT)', async () => {
     if (!tokenAcceso || !proyectoId) return;
 
     const respuesta = await request(app.getHttpServer())
-      .get(`/api/proyectos/${proyectoId}`)
+      .get(`/proyectos/${proyectoId}`)
       .set(authHeader())
       .expect(200);
 
     expect(respuesta.body.id).toBe(proyectoId);
   });
 
-  it('PATCH /api/proyectos/:id — actualizar proyecto (JWT)', async () => {
+  it('PATCH /proyectos/:id — actualizar proyecto (JWT)', async () => {
     if (!tokenAcceso || !proyectoId) return;
 
     const respuesta = await request(app.getHttpServer())
-      .patch(`/api/proyectos/${proyectoId}`)
+      .patch(`/proyectos/${proyectoId}`)
       .set(authHeader())
       .send({ estado: 'activo' })
       .expect(200);
@@ -82,7 +81,7 @@ describe('Proyectos (e2e)', () => {
     expect(respuesta.body.estado).toBe('activo');
   });
 
-  it('GET /api/proyectos — sin JWT debe retornar 401', () => {
-    return request(app.getHttpServer()).get('/api/proyectos').expect(401);
+  it('GET /proyectos — sin JWT debe retornar 401', () => {
+    return request(app.getHttpServer()).get('/proyectos').expect(401);
   });
 });

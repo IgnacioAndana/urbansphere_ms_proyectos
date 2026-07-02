@@ -5,8 +5,8 @@ Microservicio de **catálogo comercial** de la plataforma **UrbanSphere**. Gesti
 | Dato | Valor |
 |------|-------|
 | Puerto por defecto | `3002` |
-| Prefijo API | `/api` |
-| Swagger | `/api/docs` |
+| Prefijo global | *(ninguno — rutas en raíz, acceso vía subdominio)* |
+| Swagger | `/docs` |
 | Esquema MySQL | `porsusde_urbansphere` (compartido con MS Users y MS AI) |
 
 ---
@@ -22,7 +22,7 @@ Los roles vienen en el JWT emitido por **MS Users** (`admin`, `agent`, `user`).
 | Consultar proyectos, tipologías, imágenes y equipamiento | ✅ (todos) | ✅ (todos) | ✅ (solo `activo`) |
 | Marcar "me interesa" | — | — | ✅ en **MS Users** |
 
-> **"Me interesa"** no vive en este microservicio. Los usuarios normales registran interés en **MS Users** con `POST /api/solicitudes-interes` (tabla `solicitudes_interes`, campo `proyecto_id`).
+> **"Me interesa"** no vive en este microservicio. Los usuarios normales registran interés en **MS Users** con `POST /solicitudes-interes` (tabla `solicitudes_interes`, campo `proyecto_id`).
 
 ---
 
@@ -79,7 +79,7 @@ DB_SYNCHRONIZE=false
 DB_LOGGING=false
 ```
 
-> Usa el **mismo** `JWT_SECRET` que MS Users. Los tokens se obtienen con `POST /api/autenticacion/iniciar-sesion` en MS Users (puerto 3001).
+> Usa el **mismo** `JWT_SECRET` que MS Users. Los tokens se obtienen con `POST /autenticacion/iniciar-sesion` en MS Users (puerto 3001).
 
 ### AWS S3 — bucket y rutas
 
@@ -93,6 +93,17 @@ Bucket: **`urbansphere-images`** (mismo que MS Users para logos en `logos/`).
 Al subir archivo con `POST .../imagenes` + multipart, el servicio genera la URL automáticamente. También puedes enviar `urlS3` manualmente si la imagen ya está en el bucket.
 
 Verifica en EC2/local que `.env` tenga `AWS_S3_BUCKET=urbansphere-images` y la región correcta (`AWS_REGION=us-east-1`).
+
+### Rutas sin prefijo `/api`
+
+Igual que **MS Users**, este microservicio expone rutas en la raíz (`/proyectos`, `/proyectos/:id/tipologias`, etc.). No usa `app.setGlobalPrefix('api')`.
+
+En producción el **BFF** debe llamar a los MS por subdominio/puerto directo, por ejemplo:
+
+- `https://usuarios.tudominio.cl/autenticacion/iniciar-sesion`
+- `https://proyectos.tudominio.cl/proyectos`
+
+Si el BFF aún concatena `/api` al proxy, quítalo en la config de URLs base de cada MS.
 
 ### 3. Base de datos
 
@@ -140,7 +151,7 @@ Salida esperada:
 
 ```text
 MS Proyectos en http://localhost:3002
-Swagger: http://localhost:3002/api/docs
+Swagger: http://localhost:3002/docs
 ```
 
 ### Producción
@@ -157,12 +168,12 @@ npm run start:prod
 1. Obtén un JWT desde **MS Users** (puerto 3001):
 
 ```bash
-curl -X POST http://localhost:3001/api/autenticacion/iniciar-sesion \
+curl -X POST http://localhost:3001/autenticacion/iniciar-sesion \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"juan@example.com\",\"contrasena\":\"SecurePass123!\"}"
 ```
 
-2. Abre Swagger: `http://localhost:3002/api/docs`
+2. Abre Swagger: `http://localhost:3002/docs`
 
 3. Usa **Authorize** con `Bearer TU_TOKEN_ACCESO`
 
@@ -170,68 +181,68 @@ curl -X POST http://localhost:3001/api/autenticacion/iniciar-sesion \
 
 ## Ejemplos curl
 
-Base URL: `http://localhost:3002/api`
+Base URL: `http://localhost:3002` (sin prefijo `/api`; en prod suele ser subdominio, ej. `https://proyectos.tudominio.cl`)
 
 Reemplaza `TU_TOKEN_ACCESO` por el token de MS Users (rol `admin` o `agent` para crear/editar).
 
 ### Proyectos
 
-#### POST `/api/proyectos` — Crear proyecto (admin, agent)
+#### POST `/proyectos` — Crear proyecto (admin, agent)
 
 ```bash
-curl -X POST http://localhost:3002/api/proyectos \
+curl -X POST http://localhost:3002/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234\",\"comuna\":\"Providencia\",\"fechaEntregaEstimada\":\"2027-06-30\",\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial\",\"estado\":\"borrador\"}"
 ```
 
-#### GET `/api/proyectos` — Listar proyectos
+#### GET `/proyectos` — Listar proyectos
 
 ```bash
-curl -X GET http://localhost:3002/api/proyectos \
+curl -X GET http://localhost:3002/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
 > Usuarios `user` solo ven proyectos con `estado: activo`.
 
-#### GET `/api/proyectos/:id` — Obtener proyecto
+#### GET `/proyectos/:id` — Obtener proyecto
 
 ```bash
-curl -X GET http://localhost:3002/api/proyectos/1 \
+curl -X GET http://localhost:3002/proyectos/1 \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
-#### PATCH `/api/proyectos/:id` — Actualizar proyecto
+#### PATCH `/proyectos/:id` — Actualizar proyecto
 
 ```bash
-curl -X PATCH http://localhost:3002/api/proyectos/1 \
+curl -X PATCH http://localhost:3002/proyectos/1 \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"estado\":\"activo\"}"
 ```
 
-#### DELETE `/api/proyectos/:id` — Eliminar proyecto
+#### DELETE `/proyectos/:id` — Eliminar proyecto
 
 ```bash
-curl -X DELETE http://localhost:3002/api/proyectos/1 \
+curl -X DELETE http://localhost:3002/proyectos/1 \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
 ### Imágenes de proyecto
 
-#### POST `/api/proyectos/:proyectoId/imagenes` — Por URL
+#### POST `/proyectos/:proyectoId/imagenes` — Por URL
 
 ```bash
-curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
+curl -X POST http://localhost:3002/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"urlS3\":\"https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/galeria/img.jpg\",\"etiqueta\":\"fachada\",\"esPortada\":true,\"orden\":0}"
 ```
 
-#### POST `/api/proyectos/:proyectoId/imagenes` — Subir archivo a S3
+#### POST `/proyectos/:proyectoId/imagenes` — Subir archivo a S3
 
 ```bash
-curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
+curl -X POST http://localhost:3002/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -F "archivo=@./foto.jpg" \
   -F "esPortada=true" \
@@ -241,7 +252,7 @@ curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
 #### Imagen panorámica 360°
 
 ```bash
-curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
+curl -X POST http://localhost:3002/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -F "archivo=@./panorama.jpg" \
   -F "esPanoramica360=true"
@@ -251,20 +262,20 @@ curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
 
 ```bash
 # Crear tipología 2D/2B 64m²
-curl -X POST http://localhost:3002/api/proyectos/1/tipologias \
+curl -X POST http://localhost:3002/proyectos/1/tipologias \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"codigoTipologia\":\"2D2B-64\",\"dormitorios\":2,\"banos\":2,\"superficieM2\":64,\"valorEnUf\":3200}"
 
 # Listar tipologías
-curl -X GET http://localhost:3002/api/proyectos/1/tipologias \
+curl -X GET http://localhost:3002/proyectos/1/tipologias \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
 ### Imágenes de tipología
 
 ```bash
-curl -X POST http://localhost:3002/api/proyectos/1/tipologias/1/imagenes \
+curl -X POST http://localhost:3002/proyectos/1/tipologias/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -F "archivo=@./planta.jpg" \
   -F "esPortada=true"
@@ -273,7 +284,7 @@ curl -X POST http://localhost:3002/api/proyectos/1/tipologias/1/imagenes \
 ### Equipamiento
 
 ```bash
-curl -X PUT http://localhost:3002/api/proyectos/1/equipamiento \
+curl -X PUT http://localhost:3002/proyectos/1/equipamiento \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"gimnasio\":true,\"piscina\":true,\"coworkingRoom\":true,\"areasVerdes\":true}"
@@ -285,20 +296,20 @@ curl -X PUT http://localhost:3002/api/proyectos/1/equipamiento \
 
 | Método | Ruta | Descripción | Roles |
 |--------|------|-------------|-------|
-| POST | `/api/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
-| GET | `/api/proyectos` | Listar proyectos | admin, agent, user |
-| GET | `/api/proyectos/:id` | Obtener proyecto | admin, agent, user |
-| PATCH | `/api/proyectos/:id` | Actualizar proyecto | admin, agent |
-| DELETE | `/api/proyectos/:id` | Eliminar proyecto | admin, agent |
-| POST | `/api/proyectos/:proyectoId/imagenes` | Agregar imagen (URL o archivo) | admin, agent |
-| GET | `/api/proyectos/:proyectoId/imagenes` | Listar imágenes | admin, agent, user |
-| PATCH | `/api/proyectos/:proyectoId/imagenes/:id` | Actualizar imagen | admin, agent |
-| DELETE | `/api/proyectos/:proyectoId/imagenes/:id` | Eliminar imagen | admin, agent |
-| POST | `/api/proyectos/:proyectoId/tipologias` | Crear tipología | admin, agent |
-| GET | `/api/proyectos/:proyectoId/tipologias` | Listar tipologías | admin, agent, user |
-| GET/PATCH/DELETE | `/api/proyectos/:proyectoId/tipologias/:id` | CRUD tipología | admin, agent |
-| POST/GET/PATCH/DELETE | `/api/proyectos/:proyectoId/tipologias/:tipologiaId/imagenes` | Imágenes por tipología | ver roles arriba |
-| GET/PUT | `/api/proyectos/:proyectoId/equipamiento` | Equipamiento común | GET: todos; PUT: admin, agent |
+| POST | `/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
+| GET | `/proyectos` | Listar proyectos | admin, agent, user |
+| GET | `/proyectos/:id` | Obtener proyecto | admin, agent, user |
+| PATCH | `/proyectos/:id` | Actualizar proyecto | admin, agent |
+| DELETE | `/proyectos/:id` | Eliminar proyecto | admin, agent |
+| POST | `/proyectos/:proyectoId/imagenes` | Agregar imagen (URL o archivo) | admin, agent |
+| GET | `/proyectos/:proyectoId/imagenes` | Listar imágenes | admin, agent, user |
+| PATCH | `/proyectos/:proyectoId/imagenes/:id` | Actualizar imagen | admin, agent |
+| DELETE | `/proyectos/:proyectoId/imagenes/:id` | Eliminar imagen | admin, agent |
+| POST | `/proyectos/:proyectoId/tipologias` | Crear tipología | admin, agent |
+| GET | `/proyectos/:proyectoId/tipologias` | Listar tipologías | admin, agent, user |
+| GET/PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:id` | CRUD tipología | admin, agent |
+| POST/GET/PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:tipologiaId/imagenes` | Imágenes por tipología | ver roles arriba |
+| GET/PUT | `/proyectos/:proyectoId/equipamiento` | Equipamiento común | GET: todos; PUT: admin, agent |
 
 ---
 

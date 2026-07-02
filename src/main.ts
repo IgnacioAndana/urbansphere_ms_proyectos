@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -25,12 +24,12 @@ async function bootstrap(): Promise<void> {
     .build();
 
   const documento = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, documento);
+  SwaggerModule.setup('docs', app, documento);
 
   const puerto = process.env.PORT || 3002;
   await app.listen(puerto);
   console.log(`MS Proyectos en http://localhost:${puerto}`);
-  console.log(`Swagger: http://localhost:${puerto}/api/docs`);
+  console.log(`Swagger: http://localhost:${puerto}/docs`);
 }
 
 bootstrap();
