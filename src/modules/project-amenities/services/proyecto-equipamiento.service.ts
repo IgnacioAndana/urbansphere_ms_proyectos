@@ -36,20 +36,12 @@ export class ProyectoEquipamientoServicio {
       equipamiento = await this.equipamientoRepositorio.crearEquipamiento({
         proyectoId,
         ...this.valoresPorDefecto(),
-        ...dto,
+        ...this.extraerFlagsEquipamiento(dto),
       });
       return this.mapearARespuesta(equipamiento);
     }
 
-    const datos: Partial<ProyectoEquipamientoEntidad> = {};
-    if (dto.gimnasio !== undefined) datos.gimnasio = dto.gimnasio;
-    if (dto.quincho !== undefined) datos.quincho = dto.quincho;
-    if (dto.areasVerdes !== undefined) datos.areasVerdes = dto.areasVerdes;
-    if (dto.bicicletero !== undefined) datos.bicicletero = dto.bicicletero;
-    if (dto.piscina !== undefined) datos.piscina = dto.piscina;
-    if (dto.juegosInfantiles !== undefined) datos.juegosInfantiles = dto.juegosInfantiles;
-    if (dto.gourmetLounge !== undefined) datos.gourmetLounge = dto.gourmetLounge;
-    if (dto.coworkingRoom !== undefined) datos.coworkingRoom = dto.coworkingRoom;
+    const datos = this.extraerFlagsEquipamiento(dto);
 
     const actualizado = await this.equipamientoRepositorio.actualizarEquipamiento(
       equipamiento.id,
@@ -73,6 +65,21 @@ export class ProyectoEquipamientoServicio {
       creadoEn: new Date(),
       actualizadoEn: new Date(),
     };
+  }
+
+  private extraerFlagsEquipamiento(
+    dto: ActualizarProyectoEquipamientoDto,
+  ): Partial<ProyectoEquipamientoEntidad> {
+    const datos: Partial<ProyectoEquipamientoEntidad> = {};
+    if (dto.gimnasio !== undefined) datos.gimnasio = dto.gimnasio;
+    if (dto.quincho !== undefined) datos.quincho = dto.quincho;
+    if (dto.areasVerdes !== undefined) datos.areasVerdes = dto.areasVerdes;
+    if (dto.bicicletero !== undefined) datos.bicicletero = dto.bicicletero;
+    if (dto.piscina !== undefined) datos.piscina = dto.piscina;
+    if (dto.juegosInfantiles !== undefined) datos.juegosInfantiles = dto.juegosInfantiles;
+    if (dto.gourmetLounge !== undefined) datos.gourmetLounge = dto.gourmetLounge;
+    if (dto.coworkingRoom !== undefined) datos.coworkingRoom = dto.coworkingRoom;
+    return datos;
   }
 
   private valoresPorDefecto() {
