@@ -13,6 +13,9 @@ import { LoggingHttpInterceptor } from './common/interceptors/logging-http.inter
 import { AuthModule } from './modules/auth/auth.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ProjectImagesModule } from './modules/project-images/project-images.module';
+import { TypologiesModule } from './modules/typologies/typologies.module';
+import { TypologyImagesModule } from './modules/typology-images/typology-images.module';
+import { ProjectAmenitiesModule } from './modules/project-amenities/project-amenities.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { StorageModule } from './modules/storage/storage.module';
 
@@ -34,6 +37,9 @@ import { StorageModule } from './modules/storage/storage.module';
     StorageModule,
     ProjectsModule,
     ProjectImagesModule,
+    TypologiesModule,
+    TypologyImagesModule,
+    ProjectAmenitiesModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: FiltroExcepcionesHttp },

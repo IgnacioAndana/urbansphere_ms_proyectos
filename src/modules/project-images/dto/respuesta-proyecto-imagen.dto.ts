@@ -16,6 +16,9 @@ export class RespuestaProyectoImagenDto {
   @ApiProperty({ example: 'https://bucket.s3.amazonaws.com/projects/1/img.jpg' })
   urlS3: string;
 
+  @ApiProperty({ example: 'fachada', nullable: true })
+  etiqueta: string | null;
+
   @ApiProperty({ example: true })
   esPortada: boolean;
 

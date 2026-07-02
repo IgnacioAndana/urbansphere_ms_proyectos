@@ -52,6 +52,7 @@ export class ProyectoImagenesServicio {
     const imagen = await this.imagenesRepositorio.crearImagen({
       proyectoId,
       urlS3,
+      etiqueta: dto.etiqueta ?? null,
       esPortada: dto.esPortada ?? false,
       esPanoramica360: dto.esPanoramica360 ?? false,
       orden: dto.orden ?? 0,
@@ -85,6 +86,7 @@ export class ProyectoImagenesServicio {
 
     const datos: Partial<ProyectoImagenEntidad> = {};
     if (dto.urlS3 !== undefined) datos.urlS3 = dto.urlS3;
+    if (dto.etiqueta !== undefined) datos.etiqueta = dto.etiqueta;
     if (dto.esPortada !== undefined) datos.esPortada = dto.esPortada;
     if (dto.esPanoramica360 !== undefined) datos.esPanoramica360 = dto.esPanoramica360;
     if (dto.orden !== undefined) datos.orden = dto.orden;
@@ -125,6 +127,7 @@ export class ProyectoImagenesServicio {
       id: imagen.id,
       proyectoId: imagen.proyectoId,
       urlS3: imagen.urlS3,
+      etiqueta: imagen.etiqueta,
       esPortada: imagen.esPortada,
       esPanoramica360: imagen.esPanoramica360,
       orden: imagen.orden,

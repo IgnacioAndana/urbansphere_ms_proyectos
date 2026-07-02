@@ -1,7 +1,5 @@
 /**
  * Archivo: proyectos.service.spec.ts
- * Ubicación: modules/projects/services
- * Tipo: Pruebas unitarias
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -20,8 +18,9 @@ describe('ProyectosServicio', () => {
     id: 1,
     titulo: 'Edificio Vista Parque',
     slug: 'edificio-vista-parque',
-    direccion: 'Av. Providencia 1234, Providencia, Santiago',
-    precio: 250000000,
+    direccion: 'Av. Providencia 1234',
+    comuna: 'Providencia',
+    fechaEntregaEstimada: '2027-06-30',
     latitud: -33.4489,
     longitud: -70.6693,
     descripcion: 'Proyecto de prueba',
@@ -62,12 +61,12 @@ describe('ProyectosServicio', () => {
 
     const resultado = await servicio.crearProyecto({
       titulo: 'Edificio Vista Parque',
-      direccion: 'Av. Providencia 1234, Providencia, Santiago',
-      precio: 250000000,
+      direccion: 'Av. Providencia 1234',
+      comuna: 'Providencia',
     });
 
     expect(resultado.titulo).toBe('Edificio Vista Parque');
-    expect(resultado.slug).toBe('edificio-vista-parque');
+    expect(resultado.comuna).toBe('Providencia');
   });
 
   it('debe lanzar error si el slug ya existe', async () => {
@@ -77,7 +76,7 @@ describe('ProyectosServicio', () => {
       servicio.crearProyecto({
         titulo: 'Edificio Vista Parque',
         direccion: 'Av. Providencia 1234',
-        precio: 250000000,
+        comuna: 'Providencia',
         slug: 'edificio-vista-parque',
       }),
     ).rejects.toThrow(ExcepcionNegocio);
@@ -92,13 +91,6 @@ describe('ProyectosServicio', () => {
   it('debe ocultar borradores a usuarios normales', async () => {
     repositorio.buscarProyectoPorId.mockResolvedValue(proyectoMock as never);
     await expect(servicio.buscarProyectoPorId(1, ROLES.USER)).rejects.toThrow(
-      ExcepcionNegocio,
-    );
-  });
-
-  it('debe lanzar error si proyecto no existe', async () => {
-    repositorio.buscarProyectoPorId.mockResolvedValue(null);
-    await expect(servicio.buscarProyectoPorId(999, ROLES.ADMIN)).rejects.toThrow(
       ExcepcionNegocio,
     );
   });

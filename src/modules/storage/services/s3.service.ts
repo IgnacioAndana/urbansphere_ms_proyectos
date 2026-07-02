@@ -47,4 +47,23 @@ export class S3Servicio {
 
     return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${clave}`;
   }
+
+  async subirImagenTipologia(
+    tipologiaId: number,
+    archivo: Express.Multer.File,
+  ): Promise<string> {
+    const extension = archivo.originalname.split('.').pop() || 'jpg';
+    const clave = `typologies/${tipologiaId}/${randomUUID()}.${extension}`;
+
+    await this.cliente.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: clave,
+        Body: archivo.buffer,
+        ContentType: archivo.mimetype,
+      }),
+    );
+
+    return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${clave}`;
+  }
 }

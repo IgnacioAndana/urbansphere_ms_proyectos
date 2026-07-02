@@ -1,6 +1,6 @@
 # MS Projects — UrbanSphere
 
-Microservicio de **catálogo comercial** de la plataforma **UrbanSphere**. Un proyecto = una publicación inmobiliaria (título, dirección, precio, geolocalización, descripción e imágenes en S3). Publica eventos RabbitMQ al crear proyectos.
+Microservicio de **catálogo comercial** de la plataforma **UrbanSphere**. Gestiona proyectos inmobiliarios con tipologías (2D/2B, m², UF), imágenes generales y por tipología, equipamiento común y geolocalización. Publica eventos RabbitMQ al crear proyectos.
 
 | Dato | Valor |
 |------|-------|
@@ -17,9 +17,9 @@ Los roles vienen en el JWT emitido por **MS Users** (`admin`, `agent`, `user`).
 
 | Acción | admin | agent | user |
 |--------|:-----:|:-----:|:----:|
-| CRUD proyectos | ✅ | ✅ | ❌ |
-| CRUD imágenes de proyecto | ✅ | ✅ | ❌ |
-| Consultar proyectos e imágenes | ✅ (todos) | ✅ (todos) | ✅ (solo `activo`) |
+| CRUD proyectos, tipologías, equipamiento | ✅ | ✅ | ❌ |
+| CRUD imágenes (proyecto y tipología) | ✅ | ✅ | ❌ |
+| Consultar proyectos, tipologías, imágenes y equipamiento | ✅ (todos) | ✅ (todos) | ✅ (solo `activo`) |
 | Marcar "me interesa" | — | — | ✅ en **MS Users** |
 
 > **"Me interesa"** no vive en este microservicio. Los usuarios normales registran interés en **MS Users** con `POST /api/solicitudes-interes` (tabla `solicitudes_interes`, campo `proyecto_id`).
@@ -89,20 +89,20 @@ DB_LOGGING=false
 mysql -u TU_USUARIO -p -h TU_HOST porsusde_urbansphere < database/init-all.sql
 ```
 
-**BD existente con usuarios** (tu caso en producción): **no** ejecutes `init-all.sql` completo. En Navicat ejecuta solo la migración:
+**BD existente con usuarios:** ejecuta en Navicat, en este orden:
 
-```text
-database/migracion-simplificar-proyectos.sql
-```
-
-Ese script elimina las tablas antiguas (`propiedades`, `propiedad_imagenes`, etc.) y recrea `proyectos`, `proyecto_imagenes` e tablas MS AI con `proyecto_id`. **No toca** tablas de MS Users.
+1. `database/migracion-simplificar-proyectos.sql` — si aún tienes el esquema antiguo (propiedades)
+2. `database/migracion-ampliar-proyectos.sql` — tipologías, equipamiento, comuna, fecha entrega
 
 **Tablas que usa este microservicio:**
 
 | Tabla | Descripción |
 |-------|-------------|
-| `proyectos` | Publicaciones del catálogo comercial |
-| `proyecto_imagenes` | URLs S3, portada y panorámica 360° |
+| `proyectos` | Título, dirección, comuna, fecha entrega, geo, descripción |
+| `proyecto_imagenes` | Imágenes generales (fachada, ubicación, etc.) |
+| `tipologias` | Unidades disponibles: código, dormitorios, baños, m², valor UF |
+| `tipologia_imagenes` | Imágenes por tipología |
+| `proyecto_equipamiento` | Gimnasio, quincho, piscina, coworking, etc. |
 
 > También lee `usuarios` (solo validación JWT).
 
@@ -169,7 +169,7 @@ Reemplaza `TU_TOKEN_ACCESO` por el token de MS Users (rol `admin` o `agent` para
 curl -X POST http://localhost:3002/api/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234, Providencia, Santiago\",\"precio\":250000000,\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial con vista al parque\",\"estado\":\"borrador\"}"
+  -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234\",\"comuna\":\"Providencia\",\"fechaEntregaEstimada\":\"2027-06-30\",\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial\",\"estado\":\"borrador\"}"
 ```
 
 #### GET `/api/proyectos` — Listar proyectos
@@ -212,7 +212,7 @@ curl -X DELETE http://localhost:3002/api/proyectos/1 \
 curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"urlS3\":\"https://urbansphere.s3.amazonaws.com/projects/1/img.jpg\",\"esPortada\":true,\"orden\":0}"
+  -d "{\"urlS3\":\"https://urbansphere.s3.amazonaws.com/projects/1/img.jpg\",\"etiqueta\":\"fachada\",\"esPortada\":true,\"orden\":0}"
 ```
 
 #### POST `/api/proyectos/:proyectoId/imagenes` — Subir archivo a S3
@@ -234,6 +234,38 @@ curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
   -F "esPanoramica360=true"
 ```
 
+### Tipologías
+
+```bash
+# Crear tipología 2D/2B 64m²
+curl -X POST http://localhost:3002/api/proyectos/1/tipologias \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
+  -H "Content-Type: application/json" \
+  -d "{\"codigoTipologia\":\"2D2B-64\",\"dormitorios\":2,\"banos\":2,\"superficieM2\":64,\"valorEnUf\":3200}"
+
+# Listar tipologías
+curl -X GET http://localhost:3002/api/proyectos/1/tipologias \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO"
+```
+
+### Imágenes de tipología
+
+```bash
+curl -X POST http://localhost:3002/api/proyectos/1/tipologias/1/imagenes \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
+  -F "archivo=@./planta.jpg" \
+  -F "esPortada=true"
+```
+
+### Equipamiento
+
+```bash
+curl -X PUT http://localhost:3002/api/proyectos/1/equipamiento \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
+  -H "Content-Type: application/json" \
+  -d "{\"gimnasio\":true,\"piscina\":true,\"coworkingRoom\":true,\"areasVerdes\":true}"
+```
+
 ---
 
 ## Endpoints
@@ -249,6 +281,11 @@ curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
 | GET | `/api/proyectos/:proyectoId/imagenes` | Listar imágenes | admin, agent, user |
 | PATCH | `/api/proyectos/:proyectoId/imagenes/:id` | Actualizar imagen | admin, agent |
 | DELETE | `/api/proyectos/:proyectoId/imagenes/:id` | Eliminar imagen | admin, agent |
+| POST | `/api/proyectos/:proyectoId/tipologias` | Crear tipología | admin, agent |
+| GET | `/api/proyectos/:proyectoId/tipologias` | Listar tipologías | admin, agent, user |
+| GET/PATCH/DELETE | `/api/proyectos/:proyectoId/tipologias/:id` | CRUD tipología | admin, agent |
+| POST/GET/PATCH/DELETE | `/api/proyectos/:proyectoId/tipologias/:tipologiaId/imagenes` | Imágenes por tipología | ver roles arriba |
+| GET/PUT | `/api/proyectos/:proyectoId/equipamiento` | Equipamiento común | GET: todos; PUT: admin, agent |
 
 ---
 
@@ -276,8 +313,11 @@ Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere
 
 | Tabla | Columnas principales |
 |-------|---------------------|
-| `proyectos` | `titulo`, `slug`, `direccion`, `precio`, `latitud`, `longitud`, `descripcion`, `estado`, `creado_en`, `actualizado_en` |
-| `proyecto_imagenes` | `proyecto_id`, `url_s3`, `es_portada`, `es_panoramica_360`, `orden`, `creado_en` |
+| `proyectos` | `titulo`, `slug`, `direccion`, `comuna`, `fecha_entrega_estimada`, `latitud`, `longitud`, `descripcion`, `estado` |
+| `proyecto_imagenes` | `proyecto_id`, `url_s3`, `etiqueta`, `es_portada`, `es_panoramica_360`, `orden` |
+| `tipologias` | `proyecto_id`, `codigo_tipologia`, `dormitorios`, `banos`, `superficie_m2`, `valor_en_uf` |
+| `tipologia_imagenes` | `tipologia_id`, `url_s3`, `es_portada`, `es_panoramica_360`, `orden` |
+| `proyecto_equipamiento` | `proyecto_id`, `gimnasio`, `quincho`, `areas_verdes`, `bicicletero`, `piscina`, `juegos_infantiles`, `gourmet_lounge`, `coworking_room` |
 
 Estados de proyecto: `borrador`, `activo`, `inactivo`, `archivado`.
 
@@ -356,7 +396,10 @@ MS_PROYECTOS/
 │   │   ├── auth/             # validación JWT
 │   │   ├── storage/          # AWS S3
 │   │   ├── projects/         # proyectos
-│   │   └── project-images/   # proyecto_imagenes
+│   │   ├── project-images/   # proyecto_imagenes
+│   │   ├── typologies/       # tipologias
+│   │   ├── typology-images/  # tipologia_imagenes
+│   │   └── project-amenities/# proyecto_equipamiento
 │   ├── app.module.ts
 │   └── main.ts
 ├── test/                     # E2E
@@ -383,5 +426,5 @@ MS_PROYECTOS/
 
 - Plantilla del ecosistema: [`MICROSERVICIO_TEMPLATE.md`](./MICROSERVICIO_TEMPLATE.md)
 - Script SQL completo: [`database/init-all.sql`](./database/init-all.sql)
-- Migración (BD existente): [`database/migracion-simplificar-proyectos.sql`](./database/migracion-simplificar-proyectos.sql)
+- Migración ampliar: [`database/migracion-ampliar-proyectos.sql`](./database/migracion-ampliar-proyectos.sql)
 - MS Users (login JWT, solicitudes de interés): `../MS_USUARIOS/README.md`

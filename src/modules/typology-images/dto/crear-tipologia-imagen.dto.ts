@@ -1,34 +1,23 @@
-/**
- * Archivo: actualizar-proyecto-imagen.dto.ts
- * Ubicación: modules/project-images/dto
- * Tipo: DTO de entrada
- */
-
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
-export class ActualizarProyectoImagenDto {
+export class CrearTipologiaImagenDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   urlS3?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  etiqueta?: string;
-
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()
   esPortada?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()
   esPanoramica360?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 0 })
   @IsOptional()
   @IsInt()
   @Min(0)

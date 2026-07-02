@@ -31,7 +31,8 @@ export class ProyectosServicio {
       titulo: dto.titulo,
       slug,
       direccion: dto.direccion,
-      precio: dto.precio,
+      comuna: dto.comuna,
+      fechaEntregaEstimada: dto.fechaEntregaEstimada ?? null,
       latitud: dto.latitud ?? null,
       longitud: dto.longitud ?? null,
       descripcion: dto.descripcion ?? null,
@@ -75,7 +76,10 @@ export class ProyectosServicio {
     if (dto.titulo !== undefined) datos.titulo = dto.titulo;
     if (dto.slug !== undefined) datos.slug = dto.slug;
     if (dto.direccion !== undefined) datos.direccion = dto.direccion;
-    if (dto.precio !== undefined) datos.precio = dto.precio;
+    if (dto.comuna !== undefined) datos.comuna = dto.comuna;
+    if (dto.fechaEntregaEstimada !== undefined) {
+      datos.fechaEntregaEstimada = dto.fechaEntregaEstimada;
+    }
     if (dto.latitud !== undefined) datos.latitud = dto.latitud;
     if (dto.longitud !== undefined) datos.longitud = dto.longitud;
     if (dto.descripcion !== undefined) datos.descripcion = dto.descripcion;
@@ -116,7 +120,8 @@ export class ProyectosServicio {
       titulo: proyecto.titulo,
       slug: proyecto.slug,
       direccion: proyecto.direccion,
-      precio: Number(proyecto.precio),
+      comuna: proyecto.comuna,
+      fechaEntregaEstimada: proyecto.fechaEntregaEstimada,
       latitud: proyecto.latitud !== null ? Number(proyecto.latitud) : null,
       longitud: proyecto.longitud !== null ? Number(proyecto.longitud) : null,
       descripcion: proyecto.descripcion,

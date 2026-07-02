@@ -7,12 +7,12 @@
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsDateString,
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
-  Min,
 } from 'class-validator';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
 
@@ -23,17 +23,22 @@ export class ActualizarProyectoDto {
   @MaxLength(255)
   titulo?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Av. Providencia 1500' })
   @IsOptional()
   @IsString()
-  @MaxLength(500)
+  @MaxLength(255)
   direccion?: string;
 
-  @ApiPropertyOptional({ example: 265000000 })
+  @ApiPropertyOptional({ example: 'Providencia' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  precio?: number;
+  @IsString()
+  @MaxLength(100)
+  comuna?: string;
+
+  @ApiPropertyOptional({ example: '2027-12-31' })
+  @IsOptional()
+  @IsDateString()
+  fechaEntregaEstimada?: string;
 
   @ApiPropertyOptional({ example: -33.4489 })
   @IsOptional()

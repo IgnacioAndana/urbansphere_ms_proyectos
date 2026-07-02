@@ -13,6 +13,11 @@ export class CrearProyectoImagenDto {
   @IsString()
   urlS3?: string;
 
+  @ApiPropertyOptional({ example: 'fachada', description: 'Etiqueta: fachada, ubicacion, etc.' })
+  @IsOptional()
+  @IsString()
+  etiqueta?: string;
+
   @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()

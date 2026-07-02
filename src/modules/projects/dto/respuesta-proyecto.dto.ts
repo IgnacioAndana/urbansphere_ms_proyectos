@@ -6,7 +6,6 @@
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
-import { RespuestaProyectoImagenDto } from '../../project-images/dto/respuesta-proyecto-imagen.dto';
 
 export class RespuestaProyectoDto {
   @ApiProperty({ example: 1 })
@@ -18,11 +17,14 @@ export class RespuestaProyectoDto {
   @ApiProperty({ example: 'edificio-vista-parque' })
   slug: string;
 
-  @ApiProperty({ example: 'Av. Providencia 1234, Providencia, Santiago' })
+  @ApiProperty({ example: 'Av. Providencia 1234' })
   direccion: string;
 
-  @ApiProperty({ example: 250000000 })
-  precio: number;
+  @ApiProperty({ example: 'Providencia' })
+  comuna: string;
+
+  @ApiPropertyOptional({ example: '2027-06-30' })
+  fechaEntregaEstimada?: string | null;
 
   @ApiPropertyOptional({ example: -33.4489 })
   latitud?: number | null;
@@ -35,9 +37,6 @@ export class RespuestaProyectoDto {
 
   @ApiProperty({ enum: EstadoProyecto, example: EstadoProyecto.ACTIVO })
   estado: EstadoProyecto;
-
-  @ApiPropertyOptional({ type: [RespuestaProyectoImagenDto] })
-  imagenes?: RespuestaProyectoImagenDto[];
 
   @ApiProperty({ example: '20-06-2025 14:30:45' })
   creadoEn: Date;

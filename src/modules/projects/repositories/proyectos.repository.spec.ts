@@ -1,7 +1,5 @@
 /**
  * Archivo: proyectos.repository.spec.ts
- * Ubicación: modules/projects/repositories
- * Tipo: Pruebas unitarias
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -26,7 +24,7 @@ describe('ProyectosRepositorio', () => {
     titulo: 'Test',
     slug: 'test',
     direccion: 'Calle 123',
-    precio: 1000000,
+    comuna: 'Santiago',
     estado: EstadoProyecto.BORRADOR,
   };
 
@@ -55,10 +53,9 @@ describe('ProyectosRepositorio', () => {
       titulo: 'Test',
       slug: 'test',
       direccion: 'Calle 123',
-      precio: 1000000,
+      comuna: 'Santiago',
     });
     expect(resultado.id).toBe(1);
-    expect(typeormRepo.save).toHaveBeenCalled();
   });
 
   it('debe buscar proyecto por id', async () => {

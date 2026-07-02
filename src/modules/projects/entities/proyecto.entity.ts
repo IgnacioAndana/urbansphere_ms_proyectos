@@ -25,11 +25,14 @@ export class ProyectoEntidad {
   @Column({ type: 'varchar', length: 255, unique: true })
   slug: string;
 
-  @Column({ type: 'varchar', length: 500 })
+  @Column({ type: 'varchar', length: 255 })
   direccion: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
-  precio: number;
+  @Column({ type: 'varchar', length: 100 })
+  comuna: string;
+
+  @Column({ name: 'fecha_entrega_estimada', type: 'date', nullable: true })
+  fechaEntregaEstimada: string | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
   latitud: number | null;

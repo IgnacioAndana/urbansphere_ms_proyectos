@@ -48,8 +48,8 @@ describe('Proyectos (e2e)', () => {
       .set(authHeader())
       .send({
         titulo: `Proyecto E2E ${Date.now()}`,
-        direccion: 'Av. Test 123, Santiago',
-        precio: 250000000,
+        direccion: 'Av. Test 123',
+        comuna: 'Santiago',
         estado: 'borrador',
       })
       .expect(201);

@@ -1,10 +1,3 @@
-/**
- * Archivo: proyecto-imagen.entity.ts
- * Ubicación: modules/project-images/entities
- * Tipo: Entidad TypeORM
- * Tabla BD: proyecto_imagenes
- */
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -13,21 +6,18 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ProyectoEntidad } from '../../projects/entities/proyecto.entity';
+import { TipologiaEntidad } from '../../typologies/entities/tipologia.entity';
 
-@Entity('proyecto_imagenes')
-export class ProyectoImagenEntidad {
+@Entity('tipologia_imagenes')
+export class TipologiaImagenEntidad {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ name: 'proyecto_id', type: 'bigint' })
-  proyectoId: number;
+  @Column({ name: 'tipologia_id', type: 'bigint' })
+  tipologiaId: number;
 
   @Column({ name: 'url_s3', type: 'text' })
   urlS3: string;
-
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  etiqueta: string | null;
 
   @Column({ name: 'es_portada', type: 'boolean', default: false })
   esPortada: boolean;
@@ -41,7 +31,7 @@ export class ProyectoImagenEntidad {
   @CreateDateColumn({ name: 'creado_en', type: 'datetime', precision: 0 })
   creadoEn: Date;
 
-  @ManyToOne(() => ProyectoEntidad)
-  @JoinColumn({ name: 'proyecto_id' })
-  proyecto: ProyectoEntidad;
+  @ManyToOne(() => TipologiaEntidad)
+  @JoinColumn({ name: 'tipologia_id' })
+  tipologia: TipologiaEntidad;
 }

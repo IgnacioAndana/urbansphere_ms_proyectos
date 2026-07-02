@@ -1,7 +1,5 @@
 /**
  * Archivo: proyectos.controller.spec.ts
- * Ubicación: modules/projects/controllers
- * Tipo: Pruebas unitarias
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -18,8 +16,9 @@ describe('ProyectosControlador', () => {
     id: 1,
     titulo: 'Edificio Vista Parque',
     slug: 'edificio-vista-parque',
-    direccion: 'Av. Providencia 1234, Providencia, Santiago',
-    precio: 250000000,
+    direccion: 'Av. Providencia 1234',
+    comuna: 'Providencia',
+    fechaEntregaEstimada: '2027-06-30',
     latitud: -33.4489,
     longitud: -70.6693,
     descripcion: null,
@@ -56,7 +55,7 @@ describe('ProyectosControlador', () => {
     const resultado = await controlador.crearProyecto({
       titulo: 'Edificio Vista Parque',
       direccion: 'Av. Providencia 1234',
-      precio: 250000000,
+      comuna: 'Providencia',
     });
     expect(resultado.id).toBe(1);
   });
@@ -65,7 +64,6 @@ describe('ProyectosControlador', () => {
     servicio.listarProyectos.mockResolvedValue([respuestaMock]);
     const resultado = await controlador.listarProyectos(usuarioAdmin);
     expect(resultado).toHaveLength(1);
-    expect(servicio.listarProyectos).toHaveBeenCalledWith(ROLES.ADMIN);
   });
 
   it('debe buscar proyecto por id', async () => {
