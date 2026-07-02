@@ -57,15 +57,18 @@ export class TipologiaImagenesControlador {
 
   @Patch(':id')
   @Roles(ROLES.ADMIN, ROLES.AGENT)
-  @ApiOperation({ summary: 'Actualizar imagen de tipología' })
+  @UseInterceptors(FileInterceptor('archivo'))
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiOperation({ summary: 'Actualizar imagen de tipología (metadatos o reemplazar archivo)' })
   @ApiResponse({ status: 200, type: RespuestaTipologiaImagenDto })
   actualizarImagen(
     @Param('proyectoId', ParseIntPipe) proyectoId: number,
     @Param('tipologiaId', ParseIntPipe) tipologiaId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarTipologiaImagenDto,
+    @UploadedFile() archivo?: Express.Multer.File,
   ): Promise<RespuestaTipologiaImagenDto> {
-    return this.imagenesServicio.actualizarImagen(proyectoId, tipologiaId, id, dto);
+    return this.imagenesServicio.actualizarImagen(proyectoId, tipologiaId, id, dto, archivo);
   }
 
   @Delete(':id')

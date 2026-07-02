@@ -73,6 +73,7 @@ export class ProyectoImagenesServicio {
     proyectoId: number,
     id: number,
     dto: ActualizarProyectoImagenDto,
+    archivo?: Express.Multer.File,
   ): Promise<RespuestaProyectoImagenDto> {
     const imagen = await this.obtenerImagenDeProyecto(proyectoId, id);
 
@@ -85,7 +86,11 @@ export class ProyectoImagenesServicio {
     }
 
     const datos: Partial<ProyectoImagenEntidad> = {};
-    if (dto.urlS3 !== undefined) datos.urlS3 = dto.urlS3;
+    if (archivo) {
+      datos.urlS3 = await this.s3Servicio.subirImagenProyecto(proyectoId, archivo);
+    } else if (dto.urlS3 !== undefined) {
+      datos.urlS3 = dto.urlS3;
+    }
     if (dto.etiqueta !== undefined) datos.etiqueta = dto.etiqueta;
     if (dto.esPortada !== undefined) datos.esPortada = dto.esPortada;
     if (dto.esPanoramica360 !== undefined) datos.esPanoramica360 = dto.esPanoramica360;
