@@ -72,7 +72,7 @@ RABBITMQ_URL=amqp://guest:guest@localhost:5672
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=tu_access_key
 AWS_SECRET_ACCESS_KEY=tu_secret_key
-AWS_S3_BUCKET=urbansphere
+AWS_S3_BUCKET=urbansphere-images
 
 NODE_ENV=development
 DB_SYNCHRONIZE=false
@@ -80,6 +80,19 @@ DB_LOGGING=false
 ```
 
 > Usa el **mismo** `JWT_SECRET` que MS Users. Los tokens se obtienen con `POST /api/autenticacion/iniciar-sesion` en MS Users (puerto 3001).
+
+### AWS S3 — bucket y rutas
+
+Bucket: **`urbansphere-images`** (mismo que MS Users para logos en `logos/`).
+
+| Tipo de imagen | Prefijo en S3 | URL pública (ejemplo) |
+|----------------|---------------|------------------------|
+| Galería del proyecto | `proyectos/{id}/galeria/` | `https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/galeria/uuid.jpg` |
+| Tipología | `proyectos/{id}/tipologias/{tipologiaId}/` | `https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/tipologias/2/uuid.jpg` |
+
+Al subir archivo con `POST .../imagenes` + multipart, el servicio genera la URL automáticamente. También puedes enviar `urlS3` manualmente si la imagen ya está en el bucket.
+
+Verifica en EC2/local que `.env` tenga `AWS_S3_BUCKET=urbansphere-images` y la región correcta (`AWS_REGION=us-east-1`).
 
 ### 3. Base de datos
 
@@ -212,7 +225,7 @@ curl -X DELETE http://localhost:3002/api/proyectos/1 \
 curl -X POST http://localhost:3002/api/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"urlS3\":\"https://urbansphere.s3.amazonaws.com/projects/1/img.jpg\",\"etiqueta\":\"fachada\",\"esPortada\":true,\"orden\":0}"
+  -d "{\"urlS3\":\"https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/galeria/img.jpg\",\"etiqueta\":\"fachada\",\"esPortada\":true,\"orden\":0}"
 ```
 
 #### POST `/api/proyectos/:proyectoId/imagenes` — Subir archivo a S3
@@ -305,7 +318,7 @@ Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere
 - TypeORM + MySQL
 - JWT (validación con tokens de MS Users)
 - RabbitMQ (amqplib) — evento `project.created`
-- AWS S3 — imágenes en `projects/{proyectoId}/`
+- AWS S3 — bucket `urbansphere-images`, rutas `proyectos/{id}/galeria/` y `proyectos/{id}/tipologias/{tipologiaId}/`
 - Swagger / OpenAPI
 - Jest + Supertest
 

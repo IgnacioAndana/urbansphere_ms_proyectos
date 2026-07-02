@@ -13,7 +13,9 @@ export class RespuestaProyectoImagenDto {
   @ApiProperty({ example: 1 })
   proyectoId: number;
 
-  @ApiProperty({ example: 'https://bucket.s3.amazonaws.com/projects/1/img.jpg' })
+  @ApiProperty({
+    example: 'https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/galeria/img.jpg',
+  })
   urlS3: string;
 
   @ApiProperty({ example: 'fachada', nullable: true })

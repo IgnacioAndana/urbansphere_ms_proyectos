@@ -26,7 +26,7 @@ export class TipologiaImagenesServicio {
 
     let urlS3 = dto.urlS3;
     if (archivo) {
-      urlS3 = await this.s3Servicio.subirImagenTipologia(tipologiaId, archivo);
+      urlS3 = await this.s3Servicio.subirImagenTipologia(proyectoId, tipologiaId, archivo);
     }
 
     if (!urlS3) {

@@ -8,7 +8,9 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class CrearProyectoImagenDto {
-  @ApiPropertyOptional({ example: 'https://bucket.s3.amazonaws.com/projects/1/img.jpg' })
+  @ApiPropertyOptional({
+    example: 'https://urbansphere-images.s3.us-east-1.amazonaws.com/proyectos/1/galeria/img.jpg',
+  })
   @IsOptional()
   @IsString()
   urlS3?: string;
