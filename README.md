@@ -246,17 +246,10 @@ curl -X POST http://localhost:3002/proyectos/1/imagenes \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -F "archivo=@./foto.jpg" \
   -F "esPortada=true" \
-  -F "esPanoramica360=false"
+  -F "orden=0"
 ```
 
-#### Imagen panorámica 360°
-
-```bash
-curl -X POST http://localhost:3002/proyectos/1/imagenes \
-  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
-  -F "archivo=@./panorama.jpg" \
-  -F "esPanoramica360=true"
-```
+> **Nota:** `esPortada` es opcional (default `false`). Solo una imagen por proyecto puede ser portada; al marcar una nueva, la anterior se desmarca automáticamente.
 
 ### Tipologías
 
@@ -338,9 +331,9 @@ Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere
 | Tabla | Columnas principales |
 |-------|---------------------|
 | `proyectos` | `titulo`, `slug`, `direccion`, `comuna`, `fecha_entrega_estimada`, `latitud`, `longitud`, `descripcion`, `estado` |
-| `proyecto_imagenes` | `proyecto_id`, `url_s3`, `etiqueta`, `es_portada`, `es_panoramica_360`, `orden` |
+| `proyecto_imagenes` | `proyecto_id`, `url_s3`, `etiqueta`, `es_portada`, `orden` |
 | `tipologias` | `proyecto_id`, `codigo_tipologia`, `dormitorios`, `banos`, `superficie_m2`, `valor_en_uf` |
-| `tipologia_imagenes` | `tipologia_id`, `url_s3`, `es_portada`, `es_panoramica_360`, `orden` |
+| `tipologia_imagenes` | `tipologia_id`, `url_s3`, `es_portada`, `orden` |
 | `proyecto_equipamiento` | `proyecto_id`, `gimnasio`, `quincho`, `areas_verdes`, `bicicletero`, `piscina`, `juegos_infantiles`, `gourmet_lounge`, `coworking_room` |
 
 Estados de proyecto: `borrador`, `activo`, `inactivo`, `archivado`.

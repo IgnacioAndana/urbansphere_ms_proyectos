@@ -41,11 +41,4 @@ export class TipologiaImagenesRepositorio {
   async quitarPortadaDeTipologia(tipologiaId: number): Promise<void> {
     await this.repositorio.update({ tipologiaId, esPortada: true }, { esPortada: false });
   }
-
-  async quitarPanoramica360DeTipologia(tipologiaId: number): Promise<void> {
-    await this.repositorio.update(
-      { tipologiaId, esPanoramica360: true },
-      { esPanoramica360: false },
-    );
-  }
 }

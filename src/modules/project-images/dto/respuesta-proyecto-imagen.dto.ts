@@ -24,9 +24,6 @@ export class RespuestaProyectoImagenDto {
   @ApiProperty({ example: true })
   esPortada: boolean;
 
-  @ApiProperty({ example: false })
-  esPanoramica360: boolean;
-
   @ApiProperty({ example: 0 })
   orden: number;
 

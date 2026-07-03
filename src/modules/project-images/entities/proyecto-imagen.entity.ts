@@ -32,9 +32,6 @@ export class ProyectoImagenEntidad {
   @Column({ name: 'es_portada', type: 'boolean', default: false })
   esPortada: boolean;
 
-  @Column({ name: 'es_panoramica_360', type: 'boolean', default: false })
-  esPanoramica360: boolean;
-
   @Column({ type: 'int', default: 0 })
   orden: number;
 

@@ -9,17 +9,14 @@ export class CrearTipologiaImagenDto {
   @IsString()
   urlS3?: string;
 
-  @ApiPropertyOptional({ example: false })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Si true, esta imagen pasa a ser la portada de la tipología (solo una)',
+  })
   @IsOptional()
   @Transform(aBooleano)
   @IsBoolean()
   esPortada?: boolean;
-
-  @ApiPropertyOptional({ example: false })
-  @IsOptional()
-  @Transform(aBooleano)
-  @IsBoolean()
-  esPanoramica360?: boolean;
 
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()

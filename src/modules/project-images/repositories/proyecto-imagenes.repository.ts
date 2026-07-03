@@ -48,11 +48,4 @@ export class ProyectoImagenesRepositorio {
   async quitarPortadaDeProyecto(proyectoId: number): Promise<void> {
     await this.repositorio.update({ proyectoId, esPortada: true }, { esPortada: false });
   }
-
-  async quitarPanoramica360DeProyecto(proyectoId: number): Promise<void> {
-    await this.repositorio.update(
-      { proyectoId, esPanoramica360: true },
-      { esPanoramica360: false },
-    );
-  }
 }

@@ -14,9 +14,6 @@ export class RespuestaTipologiaImagenDto {
   esPortada: boolean;
 
   @ApiProperty()
-  esPanoramica360: boolean;
-
-  @ApiProperty()
   orden: number;
 
   @ApiProperty()

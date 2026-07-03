@@ -37,12 +37,6 @@ export class ActualizarProyectoImagenDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Transform(aBooleano)
-  @IsBoolean()
-  esPanoramica360?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
   @Transform(aEntero)
   @IsInt()
   @Min(0)

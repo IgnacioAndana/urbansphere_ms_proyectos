@@ -22,17 +22,14 @@ export class CrearProyectoImagenDto {
   @IsString()
   etiqueta?: string;
 
-  @ApiPropertyOptional({ example: false })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Si true, esta imagen pasa a ser la portada del proyecto (solo una)',
+  })
   @IsOptional()
   @Transform(aBooleano)
   @IsBoolean()
   esPortada?: boolean;
-
-  @ApiPropertyOptional({ example: false, description: 'Imagen panorámica 360° del proyecto' })
-  @IsOptional()
-  @Transform(aBooleano)
-  @IsBoolean()
-  esPanoramica360?: boolean;
 
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()

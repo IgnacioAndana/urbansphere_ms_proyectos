@@ -40,15 +40,10 @@ export class TipologiaImagenesServicio {
       await this.imagenesRepositorio.quitarPortadaDeTipologia(tipologiaId);
     }
 
-    if (dto.esPanoramica360) {
-      await this.imagenesRepositorio.quitarPanoramica360DeTipologia(tipologiaId);
-    }
-
     const imagen = await this.imagenesRepositorio.crearImagen({
       tipologiaId,
       urlS3,
       esPortada: dto.esPortada ?? false,
-      esPanoramica360: dto.esPanoramica360 ?? false,
       orden: dto.orden ?? 0,
     });
 
@@ -77,10 +72,6 @@ export class TipologiaImagenesServicio {
       await this.imagenesRepositorio.quitarPortadaDeTipologia(tipologiaId);
     }
 
-    if (dto.esPanoramica360) {
-      await this.imagenesRepositorio.quitarPanoramica360DeTipologia(tipologiaId);
-    }
-
     const datos: Partial<TipologiaImagenEntidad> = {};
     if (archivo) {
       datos.urlS3 = await this.s3Servicio.subirImagenTipologia(proyectoId, tipologiaId, archivo);
@@ -88,7 +79,6 @@ export class TipologiaImagenesServicio {
       datos.urlS3 = dto.urlS3;
     }
     if (dto.esPortada !== undefined) datos.esPortada = dto.esPortada;
-    if (dto.esPanoramica360 !== undefined) datos.esPanoramica360 = dto.esPanoramica360;
     if (dto.orden !== undefined) datos.orden = dto.orden;
 
     const actualizada = await this.imagenesRepositorio.actualizarImagen(imagen.id, datos);
@@ -123,7 +113,6 @@ export class TipologiaImagenesServicio {
       tipologiaId: imagen.tipologiaId,
       urlS3: imagen.urlS3,
       esPortada: imagen.esPortada,
-      esPanoramica360: imagen.esPanoramica360,
       orden: imagen.orden,
       creadoEn: imagen.creadoEn,
     };
