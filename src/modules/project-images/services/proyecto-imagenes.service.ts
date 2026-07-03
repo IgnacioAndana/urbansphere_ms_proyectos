@@ -111,7 +111,7 @@ export class ProyectoImagenesServicio {
     id: number,
   ): Promise<ProyectoImagenEntidad> {
     const imagen = await this.imagenesRepositorio.buscarImagenPorId(id);
-    if (!imagen || Number(imagen.proyectoId) !== proyectoId) {
+    if (!imagen || Number(imagen.proyectoId) !== Number(proyectoId)) {
       throw new ExcepcionNegocio('Imagen no encontrada', HttpStatus.NOT_FOUND);
     }
     return imagen;

@@ -80,7 +80,7 @@ export class TipologiasServicio {
     id: number,
   ): Promise<TipologiaEntidad> {
     const tipologia = await this.tipologiasRepositorio.buscarPorId(id);
-    if (!tipologia || tipologia.proyectoId !== proyectoId) {
+    if (!tipologia || Number(tipologia.proyectoId) !== Number(proyectoId)) {
       throw new ExcepcionNegocio('Tipología no encontrada', HttpStatus.NOT_FOUND);
     }
     return tipologia;
@@ -102,7 +102,7 @@ export class TipologiasServicio {
       proyectoId,
       codigo,
     );
-    if (existente && existente.id !== excluirId) {
+    if (existente && Number(existente.id) !== Number(excluirId)) {
       throw new ExcepcionNegocio('El código de tipología ya existe en este proyecto', HttpStatus.CONFLICT);
     }
   }
