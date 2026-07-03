@@ -9,10 +9,11 @@
  *   proyectos/{proyectoId}/tipologias/{tipologiaId}/{archivo} — imágenes por tipología
  */
 
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
+import { ExcepcionNegocio } from '../../../common/exceptions/excepcion-negocio.exception';
 
 @Injectable()
 export class S3Servicio {
@@ -60,14 +61,36 @@ export class S3Servicio {
     clave: string,
     archivo: Express.Multer.File,
   ): Promise<string> {
-    await this.cliente.send(
-      new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: clave,
-        Body: archivo.buffer,
-        ContentType: archivo.mimetype,
-      }),
-    );
+    if (!archivo.buffer?.length) {
+      throw new ExcepcionNegocio(
+        'El archivo está vacío o no llegó al servidor (revise proxy multipart)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (!this.configServicio.get<string>('aws.accessKeyId')) {
+      throw new ExcepcionNegocio(
+        'Credenciales AWS no configuradas en el servidor',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    try {
+      await this.cliente.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: clave,
+          Body: archivo.buffer,
+          ContentType: archivo.mimetype || 'application/octet-stream',
+        }),
+      );
+    } catch (error) {
+      const detalle = error instanceof Error ? error.message : 'error desconocido';
+      throw new ExcepcionNegocio(
+        `No se pudo subir la imagen a S3 (${this.bucket}): ${detalle}`,
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
 
     return this.construirUrlPublica(clave);
   }

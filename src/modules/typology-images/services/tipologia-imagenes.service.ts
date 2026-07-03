@@ -101,7 +101,7 @@ export class TipologiaImagenesServicio {
   ): Promise<TipologiaImagenEntidad> {
     await this.tipologiasServicio.obtenerTipologiaDeProyecto(proyectoId, tipologiaId);
     const imagen = await this.imagenesRepositorio.buscarImagenPorId(id);
-    if (!imagen || imagen.tipologiaId !== tipologiaId) {
+    if (!imagen || Number(imagen.tipologiaId) !== tipologiaId) {
       throw new ExcepcionNegocio('Imagen no encontrada', HttpStatus.NOT_FOUND);
     }
     return imagen;

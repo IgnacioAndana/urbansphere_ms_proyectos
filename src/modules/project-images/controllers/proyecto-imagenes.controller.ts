@@ -2,7 +2,7 @@
  * Archivo: proyecto-imagenes.controller.ts
  * Ubicación: modules/project-images/controllers
  * Tipo: Controlador REST
- * Endpoints: /api/proyectos/:proyectoId/imagenes
+ * Endpoints: /proyectos/:proyectoId/imagenes
  */
 
 import {
