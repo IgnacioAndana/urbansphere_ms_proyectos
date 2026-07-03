@@ -30,6 +30,8 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { CargaJwt } from '../../auth/interfaces/carga-jwt.interface';
 import { CrearProyectoDto } from '../dto/crear-proyecto.dto';
 import { ActualizarProyectoDto } from '../dto/actualizar-proyecto.dto';
+import { ConsultarCatalogoDto } from '../dto/consultar-catalogo.dto';
+import { ConsultarCatalogoResponseDto } from '../dto/consultar-catalogo-response.dto';
 import { RespuestaProyectoDto } from '../dto/respuesta-proyecto.dto';
 import { ProyectosServicio } from '../services/proyectos.service';
 
@@ -56,6 +58,19 @@ export class ProyectosControlador {
   @ApiResponse({ status: 200, type: [RespuestaProyectoDto] })
   listarProyectos(@UsuarioActual() usuario: CargaJwt): Promise<RespuestaProyectoDto[]> {
     return this.proyectosServicio.listarProyectos(usuario.rol);
+  }
+
+  @Post('catalogo')
+  @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
+  @ApiOperation({
+    summary: 'Catálogo batch — ficha resumida por lote de IDs (favoritos, listados)',
+  })
+  @ApiResponse({ status: 200, type: ConsultarCatalogoResponseDto })
+  consultarCatalogo(
+    @Body() dto: ConsultarCatalogoDto,
+    @UsuarioActual() usuario: CargaJwt,
+  ): Promise<ConsultarCatalogoResponseDto> {
+    return this.proyectosServicio.consultarCatalogo(dto.ids, usuario.rol);
   }
 
   @Get(':id')

@@ -13,13 +13,22 @@ import { RabbitmqProductor } from '../../../messaging/producers/rabbitmq.produce
 import { CrearProyectoDto } from '../dto/crear-proyecto.dto';
 import { ActualizarProyectoDto } from '../dto/actualizar-proyecto.dto';
 import { RespuestaProyectoDto } from '../dto/respuesta-proyecto.dto';
+import {
+  ConsultarCatalogoResponseDto,
+  OmitidoCatalogoDto,
+} from '../dto/consultar-catalogo-response.dto';
+import { ProyectoCatalogoItemDto } from '../dto/proyecto-catalogo-item.dto';
 import { ProyectoEntidad } from '../entities/proyecto.entity';
+import { AgregacionTipologiasCatalogo } from '../interfaces/agregacion-tipologias-catalogo.interface';
+import { CatalogoProyectosRepositorio } from '../repositories/catalogo-proyectos.repository';
 import { ProyectosRepositorio } from '../repositories/proyectos.repository';
+import { deduplicarIdsPreservandoOrden } from '../utils/deduplicar-ids.util';
 
 @Injectable()
 export class ProyectosServicio {
   constructor(
     private readonly proyectosRepositorio: ProyectosRepositorio,
+    private readonly catalogoRepositorio: CatalogoProyectosRepositorio,
     private readonly rabbitmqProductor: RabbitmqProductor,
   ) {}
 
@@ -58,6 +67,52 @@ export class ProyectosServicio {
     const soloActivos = rolUsuario === ROLES.USER;
     const proyectos = await this.proyectosRepositorio.listarProyectos(soloActivos);
     return proyectos.map((p) => this.mapearARespuesta(p));
+  }
+
+  async consultarCatalogo(
+    ids: number[],
+    rolUsuario: string,
+  ): Promise<ConsultarCatalogoResponseDto> {
+    const idsOrdenados = deduplicarIdsPreservandoOrden(ids);
+
+    if (!idsOrdenados.length) {
+      return { items: [], omitidos: [] };
+    }
+
+    const proyectos = await this.catalogoRepositorio.buscarProyectosPorIds(idsOrdenados);
+    const mapaProyectos = new Map(proyectos.map((p) => [Number(p.id), p]));
+
+    const idsIncluidos: number[] = [];
+    const omitidos: OmitidoCatalogoDto[] = [];
+    const soloActivos = rolUsuario === ROLES.USER;
+
+    for (const id of idsOrdenados) {
+      const proyecto = mapaProyectos.get(id);
+      if (!proyecto) {
+        omitidos.push({ id, motivo: 'no_encontrado' });
+        continue;
+      }
+      if (soloActivos && proyecto.estado !== EstadoProyecto.ACTIVO) {
+        omitidos.push({ id, motivo: 'inactivo' });
+        continue;
+      }
+      idsIncluidos.push(id);
+    }
+
+    const [agregaciones, portadas] = await Promise.all([
+      this.catalogoRepositorio.agregarTipologiasPorProyectos(idsIncluidos),
+      this.catalogoRepositorio.obtenerUrlPortadaPorProyectos(idsIncluidos),
+    ]);
+
+    const items = idsIncluidos.map((id) =>
+      this.mapearCatalogoItem(
+        mapaProyectos.get(id)!,
+        agregaciones.get(id),
+        portadas.get(id) ?? null,
+      ),
+    );
+
+    return { items, omitidos };
   }
 
   async actualizarProyecto(
@@ -131,6 +186,33 @@ export class ProyectosServicio {
       estado: proyecto.estado,
       creadoEn: proyecto.creadoEn,
       actualizadoEn: proyecto.actualizadoEn,
+    };
+  }
+
+  private mapearCatalogoItem(
+    proyecto: ProyectoEntidad,
+    agregacion: AgregacionTipologiasCatalogo | undefined,
+    urlPortada: string | null,
+  ): ProyectoCatalogoItemDto {
+    return {
+      id: Number(proyecto.id),
+      titulo: proyecto.titulo,
+      tipo: proyecto.tipo,
+      comuna: proyecto.comuna,
+      direccion: proyecto.direccion,
+      latitud: proyecto.latitud !== null ? Number(proyecto.latitud) : null,
+      longitud: proyecto.longitud !== null ? Number(proyecto.longitud) : null,
+      descripcion: proyecto.descripcion,
+      fechaEntregaEstimada: proyecto.fechaEntregaEstimada,
+      estado: proyecto.estado,
+      urlPortada,
+      precioDesdeUf: agregacion?.precioDesdeUf ?? null,
+      dormitoriosMin: agregacion?.dormitoriosMin ?? null,
+      dormitoriosMax: agregacion?.dormitoriosMax ?? null,
+      banosMin: agregacion?.banosMin ?? null,
+      banosMax: agregacion?.banosMax ?? null,
+      superficieMin: agregacion?.superficieMin ?? null,
+      superficieMax: agregacion?.superficieMax ?? null,
     };
   }
 }

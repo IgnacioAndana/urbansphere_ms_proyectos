@@ -205,6 +205,17 @@ curl -X GET http://localhost:3002/proyectos \
 
 > Usuarios `user` solo ven proyectos con `estado: activo`.
 
+#### POST `/proyectos/catalogo` — Ficha resumida por lote de IDs
+
+```bash
+curl -X POST http://localhost:3002/proyectos/catalogo \
+  -H "Authorization: Bearer TU_TOKEN_ACCESO" \
+  -H "Content-Type: application/json" \
+  -d "{\"ids\":[12,34]}"
+```
+
+Devuelve agregados de tipologías (precio desde UF, dormitorios, baños, m²), `urlPortada` e `omitidos` para IDs no encontrados o inactivos (rol `user`).
+
 #### GET `/proyectos/:id` — Obtener proyecto
 
 ```bash
@@ -291,6 +302,7 @@ curl -X PUT http://localhost:3002/proyectos/1/equipamiento \
 |--------|------|-------------|-------|
 | POST | `/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
 | GET | `/proyectos` | Listar proyectos | admin, agent, user |
+| POST | `/proyectos/catalogo` | Ficha resumida batch por IDs (favoritos, catálogo) | admin, agent, user |
 | GET | `/proyectos/:id` | Obtener proyecto | admin, agent, user |
 | PATCH | `/proyectos/:id` | Actualizar proyecto | admin, agent |
 | DELETE | `/proyectos/:id` | Eliminar proyecto | admin, agent |

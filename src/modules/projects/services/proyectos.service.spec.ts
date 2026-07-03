@@ -5,6 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProyectosServicio } from './proyectos.service';
 import { ProyectosRepositorio } from '../repositories/proyectos.repository';
+import { CatalogoProyectosRepositorio } from '../repositories/catalogo-proyectos.repository';
 import { ExcepcionNegocio } from '../../../common/exceptions/excepcion-negocio.exception';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
 import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
@@ -44,6 +45,14 @@ describe('ProyectosServicio', () => {
             listarProyectos: jest.fn(),
             actualizarProyecto: jest.fn(),
             eliminarProyecto: jest.fn(),
+          },
+        },
+        {
+          provide: CatalogoProyectosRepositorio,
+          useValue: {
+            buscarProyectosPorIds: jest.fn(),
+            agregarTipologiasPorProyectos: jest.fn(),
+            obtenerUrlPortadaPorProyectos: jest.fn(),
           },
         },
         {
