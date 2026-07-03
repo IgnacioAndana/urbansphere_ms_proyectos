@@ -49,6 +49,7 @@ describe('Proyectos (e2e)', () => {
         titulo: `Proyecto E2E ${Date.now()}`,
         direccion: 'Av. Test 123',
         comuna: 'Santiago',
+        tipo: 'departamento',
         estado: 'borrador',
       })
       .expect(201);

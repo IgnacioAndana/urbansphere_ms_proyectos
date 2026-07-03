@@ -122,7 +122,7 @@ mysql -u TU_USUARIO -p -h TU_HOST porsusde_urbansphere < database/init-all.sql
 
 | Tabla | Descripción |
 |-------|-------------|
-| `proyectos` | Título, dirección, comuna, fecha entrega, geo, descripción |
+| `proyectos` | Título, dirección, comuna, **tipo** (casa/departamento), fecha entrega, geo, descripción |
 | `proyecto_imagenes` | Imágenes generales (fachada, ubicación, etc.) |
 | `tipologias` | Unidades disponibles: código, dormitorios, baños, m², valor UF |
 | `tipologia_imagenes` | Imágenes por tipología |
@@ -193,7 +193,7 @@ Reemplaza `TU_TOKEN_ACCESO` por el token de MS Users (rol `admin` o `agent` para
 curl -X POST http://localhost:3002/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
-  -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234\",\"comuna\":\"Providencia\",\"fechaEntregaEstimada\":\"2027-06-30\",\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial\",\"estado\":\"borrador\"}"
+  -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234\",\"comuna\":\"Providencia\",\"tipo\":\"departamento\",\"fechaEntregaEstimada\":\"2027-06-30\",\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial\",\"estado\":\"borrador\"}"
 ```
 
 #### GET `/proyectos` — Listar proyectos
@@ -330,7 +330,7 @@ Controller → Service → Repository → Entity → MySQL (porsusde_urbansphere
 
 | Tabla | Columnas principales |
 |-------|---------------------|
-| `proyectos` | `titulo`, `slug`, `direccion`, `comuna`, `fecha_entrega_estimada`, `latitud`, `longitud`, `descripcion`, `estado` |
+| `proyectos` | `titulo`, `slug`, `direccion`, `comuna`, `tipo`, `fecha_entrega_estimada`, `latitud`, `longitud`, `descripcion`, `estado` |
 | `proyecto_imagenes` | `proyecto_id`, `url_s3`, `etiqueta`, `es_portada`, `orden` |
 | `tipologias` | `proyecto_id`, `codigo_tipologia`, `dormitorios`, `banos`, `superficie_m2`, `valor_en_uf` |
 | `tipologia_imagenes` | `tipologia_id`, `url_s3`, `es_portada`, `orden` |

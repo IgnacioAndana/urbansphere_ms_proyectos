@@ -32,6 +32,7 @@ export class ProyectosServicio {
       slug,
       direccion: dto.direccion,
       comuna: dto.comuna,
+      tipo: dto.tipo,
       fechaEntregaEstimada: dto.fechaEntregaEstimada ?? null,
       latitud: dto.latitud ?? null,
       longitud: dto.longitud ?? null,
@@ -77,6 +78,7 @@ export class ProyectosServicio {
     if (dto.slug !== undefined) datos.slug = dto.slug;
     if (dto.direccion !== undefined) datos.direccion = dto.direccion;
     if (dto.comuna !== undefined) datos.comuna = dto.comuna;
+    if (dto.tipo !== undefined) datos.tipo = dto.tipo;
     if (dto.fechaEntregaEstimada !== undefined) {
       datos.fechaEntregaEstimada = dto.fechaEntregaEstimada;
     }
@@ -109,7 +111,7 @@ export class ProyectosServicio {
 
   private async validarSlugUnico(slug: string, excluirId?: number): Promise<void> {
     const existente = await this.proyectosRepositorio.buscarProyectoPorSlug(slug);
-    if (existente && existente.id !== excluirId) {
+    if (existente && Number(existente.id) !== Number(excluirId)) {
       throw new ExcepcionNegocio('El slug ya está en uso', HttpStatus.CONFLICT);
     }
   }
@@ -121,6 +123,7 @@ export class ProyectosServicio {
       slug: proyecto.slug,
       direccion: proyecto.direccion,
       comuna: proyecto.comuna,
+      tipo: proyecto.tipo,
       fechaEntregaEstimada: proyecto.fechaEntregaEstimada,
       latitud: proyecto.latitud !== null ? Number(proyecto.latitud) : null,
       longitud: proyecto.longitud !== null ? Number(proyecto.longitud) : null,

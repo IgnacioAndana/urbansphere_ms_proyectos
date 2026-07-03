@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProyectosControlador } from './proyectos.controller';
 import { ProyectosServicio } from '../services/proyectos.service';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
 import { ROLES } from '../../../common/constants/app.constants';
 
 describe('ProyectosControlador', () => {
@@ -18,6 +19,7 @@ describe('ProyectosControlador', () => {
     slug: 'edificio-vista-parque',
     direccion: 'Av. Providencia 1234',
     comuna: 'Providencia',
+    tipo: TipoProyecto.DEPARTAMENTO,
     fechaEntregaEstimada: '2027-06-30',
     latitud: -33.4489,
     longitud: -70.6693,
@@ -56,6 +58,7 @@ describe('ProyectosControlador', () => {
       titulo: 'Edificio Vista Parque',
       direccion: 'Av. Providencia 1234',
       comuna: 'Providencia',
+      tipo: TipoProyecto.DEPARTAMENTO,
     });
     expect(resultado.id).toBe(1);
   });

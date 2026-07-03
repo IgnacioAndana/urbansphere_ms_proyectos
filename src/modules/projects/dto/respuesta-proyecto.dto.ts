@@ -6,6 +6,7 @@
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
 
 export class RespuestaProyectoDto {
   @ApiProperty({ example: 1 })
@@ -22,6 +23,9 @@ export class RespuestaProyectoDto {
 
   @ApiProperty({ example: 'Providencia' })
   comuna: string;
+
+  @ApiProperty({ enum: TipoProyecto, example: TipoProyecto.DEPARTAMENTO })
+  tipo: TipoProyecto;
 
   @ApiPropertyOptional({ example: '2027-06-30' })
   fechaEntregaEstimada?: string | null;

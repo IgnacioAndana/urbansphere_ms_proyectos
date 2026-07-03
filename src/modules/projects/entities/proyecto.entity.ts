@@ -13,6 +13,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
 
 @Entity('proyectos')
 export class ProyectoEntidad {
@@ -30,6 +31,13 @@ export class ProyectoEntidad {
 
   @Column({ type: 'varchar', length: 100 })
   comuna: string;
+
+  @Column({
+    type: 'enum',
+    enum: TipoProyecto,
+    default: TipoProyecto.DEPARTAMENTO,
+  })
+  tipo: TipoProyecto;
 
   @Column({ name: 'fecha_entrega_estimada', type: 'date', nullable: true })
   fechaEntregaEstimada: string | null;

@@ -16,6 +16,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
 
 export class CrearProyectoDto {
   @ApiProperty({ example: 'Edificio Vista Parque' })
@@ -35,6 +36,11 @@ export class CrearProyectoDto {
   @IsNotEmpty()
   @MaxLength(100)
   comuna: string;
+
+  @ApiProperty({ enum: TipoProyecto, example: TipoProyecto.DEPARTAMENTO })
+  @IsEnum(TipoProyecto)
+  @IsNotEmpty()
+  tipo: TipoProyecto;
 
   @ApiPropertyOptional({ example: '2027-06-30' })
   @IsOptional()

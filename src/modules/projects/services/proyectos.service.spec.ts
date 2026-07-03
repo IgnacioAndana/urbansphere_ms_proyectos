@@ -7,6 +7,7 @@ import { ProyectosServicio } from './proyectos.service';
 import { ProyectosRepositorio } from '../repositories/proyectos.repository';
 import { ExcepcionNegocio } from '../../../common/exceptions/excepcion-negocio.exception';
 import { EstadoProyecto } from '../../../common/enums/estado-proyecto.enum';
+import { TipoProyecto } from '../../../common/enums/tipo-proyecto.enum';
 import { ROLES } from '../../../common/constants/app.constants';
 import { RabbitmqProductor } from '../../../messaging/producers/rabbitmq.producer';
 
@@ -20,6 +21,7 @@ describe('ProyectosServicio', () => {
     slug: 'edificio-vista-parque',
     direccion: 'Av. Providencia 1234',
     comuna: 'Providencia',
+    tipo: TipoProyecto.DEPARTAMENTO,
     fechaEntregaEstimada: '2027-06-30',
     latitud: -33.4489,
     longitud: -70.6693,
@@ -63,6 +65,7 @@ describe('ProyectosServicio', () => {
       titulo: 'Edificio Vista Parque',
       direccion: 'Av. Providencia 1234',
       comuna: 'Providencia',
+      tipo: TipoProyecto.DEPARTAMENTO,
     });
 
     expect(resultado.titulo).toBe('Edificio Vista Parque');
@@ -77,6 +80,7 @@ describe('ProyectosServicio', () => {
         titulo: 'Edificio Vista Parque',
         direccion: 'Av. Providencia 1234',
         comuna: 'Providencia',
+        tipo: TipoProyecto.DEPARTAMENTO,
         slug: 'edificio-vista-parque',
       }),
     ).rejects.toThrow(ExcepcionNegocio);
