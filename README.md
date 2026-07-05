@@ -224,9 +224,13 @@ curl -X POST http://localhost:3002/proyectos/catalogo \
 
 Devuelve agregados de tipologías (precio desde UF, dormitorios, baños, m²), `urlPortada` e `omitidos` para IDs no encontrados o inactivos (visitante anónimo = solo activos).
 
-#### GET `/proyectos/:id` — Obtener proyecto
+#### GET `/proyectos/:id` — Obtener proyecto (público)
 
 ```bash
+# Sin token — solo proyectos activos
+curl -X GET http://localhost:3002/proyectos/1
+
+# Con token — admin/agent ven cualquier estado
 curl -X GET http://localhost:3002/proyectos/1 \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
@@ -311,18 +315,20 @@ curl -X PUT http://localhost:3002/proyectos/1/equipamiento \
 | POST | `/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
 | GET | `/proyectos` | Listar proyectos | **Público** (solo activos); admin/agent con JWT ven todos |
 | POST | `/proyectos/catalogo` | Ficha resumida batch por IDs | **Público** (solo activos); admin/agent con JWT ven todos |
-| GET | `/proyectos/:id` | Obtener proyecto | admin, agent, user |
+| GET | `/proyectos/:id` | Obtener proyecto | **Público** (solo activos); admin/agent con JWT ven todos |
 | PATCH | `/proyectos/:id` | Actualizar proyecto | admin, agent |
 | DELETE | `/proyectos/:id` | Eliminar proyecto | admin, agent |
 | POST | `/proyectos/:proyectoId/imagenes` | Agregar imagen (URL o archivo) | admin, agent |
-| GET | `/proyectos/:proyectoId/imagenes` | Listar imágenes | admin, agent, user |
+| GET | `/proyectos/:proyectoId/imagenes` | Listar imágenes | **Público** |
 | PATCH | `/proyectos/:proyectoId/imagenes/:id` | Actualizar imagen | admin, agent |
 | DELETE | `/proyectos/:proyectoId/imagenes/:id` | Eliminar imagen | admin, agent |
 | POST | `/proyectos/:proyectoId/tipologias` | Crear tipología | admin, agent |
-| GET | `/proyectos/:proyectoId/tipologias` | Listar tipologías | admin, agent, user |
-| GET/PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:id` | CRUD tipología | admin, agent |
-| POST/GET/PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:tipologiaId/imagenes` | Imágenes por tipología | ver roles arriba |
-| GET/PUT | `/proyectos/:proyectoId/equipamiento` | Equipamiento común | GET: todos; PUT: admin, agent |
+| GET | `/proyectos/:proyectoId/tipologias` | Listar tipologías | **Público** |
+| GET | `/proyectos/:proyectoId/tipologias/:id` | Obtener tipología | **Público** |
+| PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:id` | Actualizar/eliminar tipología | admin, agent |
+| POST/PATCH/DELETE | `/proyectos/:proyectoId/tipologias/:tipologiaId/imagenes` | CRUD imágenes tipología | POST/PATCH/DELETE: admin, agent; GET: **Público** |
+| GET | `/proyectos/:proyectoId/equipamiento` | Equipamiento común | **Público** |
+| PUT | `/proyectos/:proyectoId/equipamiento` | Actualizar equipamiento | admin, agent |
 
 ---
 
