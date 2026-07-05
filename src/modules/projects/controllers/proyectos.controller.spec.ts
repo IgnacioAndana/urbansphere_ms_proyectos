@@ -70,15 +70,44 @@ describe('ProyectosControlador', () => {
     expect(resultado).toHaveLength(1);
   });
 
+  it('debe listar proyectos sin JWT (rol user por defecto)', async () => {
+    servicio.listarProyectos.mockResolvedValue([respuestaMock]);
+    await controlador.listarProyectos(undefined);
+    expect(servicio.listarProyectos).toHaveBeenCalledWith(ROLES.USER);
+  });
+
   it('debe buscar proyecto por id', async () => {
     servicio.buscarProyectoPorId.mockResolvedValue(respuestaMock);
     const resultado = await controlador.buscarProyectoPorId(1, usuarioAdmin);
     expect(resultado.titulo).toBe('Edificio Vista Parque');
   });
 
+  it('debe buscar proyecto sin JWT', async () => {
+    servicio.buscarProyectoPorId.mockResolvedValue(respuestaMock);
+    await controlador.buscarProyectoPorId(1, undefined);
+    expect(servicio.buscarProyectoPorId).toHaveBeenCalledWith(1, ROLES.USER);
+  });
+
   it('debe consultar catálogo por ids', async () => {
     servicio.consultarCatalogo.mockResolvedValue({ items: [], omitidos: [] });
     const resultado = await controlador.consultarCatalogo({ ids: [1, 2] }, usuarioAdmin);
     expect(resultado.items).toEqual([]);
+  });
+
+  it('debe consultar catálogo público sin JWT', async () => {
+    servicio.consultarCatalogo.mockResolvedValue({ items: [], omitidos: [] });
+    await controlador.consultarCatalogo({ ids: [1] }, undefined);
+    expect(servicio.consultarCatalogo).toHaveBeenCalledWith([1], ROLES.USER);
+  });
+
+  it('debe actualizar y eliminar proyecto', async () => {
+    servicio.actualizarProyecto.mockResolvedValue(respuestaMock);
+    servicio.eliminarProyecto.mockResolvedValue(undefined);
+
+    await controlador.actualizarProyecto(1, { titulo: 'Nuevo' });
+    await controlador.eliminarProyecto(1);
+
+    expect(servicio.actualizarProyecto).toHaveBeenCalledWith(1, { titulo: 'Nuevo' });
+    expect(servicio.eliminarProyecto).toHaveBeenCalledWith(1);
   });
 });

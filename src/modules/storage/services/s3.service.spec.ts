@@ -78,6 +78,11 @@ describe('S3Servicio', () => {
     await expect(servicio.subirImagenProyecto(1, vacio)).rejects.toThrow(ExcepcionNegocio);
   });
 
+  it('debe propagar error de S3', async () => {
+    sendMock.mockRejectedValue(new Error('Access Denied'));
+    await expect(servicio.subirImagenProyecto(1, archivoMock)).rejects.toThrow(ExcepcionNegocio);
+  });
+
   it('debe rechazar si faltan credenciales AWS', async () => {
     const modulo: TestingModule = await Test.createTestingModule({
       providers: [

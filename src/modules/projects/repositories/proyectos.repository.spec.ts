@@ -67,4 +67,19 @@ describe('ProyectosRepositorio', () => {
     const resultado = await repositorio.listarProyectos();
     expect(resultado).toHaveLength(1);
   });
+
+  it('debe listar solo proyectos activos', async () => {
+    await repositorio.listarProyectos(true);
+    expect(typeormRepo.find).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { estado: EstadoProyecto.ACTIVO } }),
+    );
+  });
+
+  it('debe buscar por slug, actualizar y eliminar', async () => {
+    expect((await repositorio.buscarProyectoPorSlug('test'))?.slug).toBe('test');
+    const actualizado = await repositorio.actualizarProyecto(1, { titulo: 'Nuevo' });
+    expect(actualizado?.id).toBe(1);
+    await repositorio.eliminarProyecto(1);
+    expect(typeormRepo.delete).toHaveBeenCalledWith(1);
+  });
 });

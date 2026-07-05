@@ -427,7 +427,7 @@ Tras ejecutar `npm run test:report` se generan:
 
 Las pruebas se ejecutan **en local** antes de mergear a `main`. El deploy en EC2 **no corre tests** automáticamente.
 
-Umbrales mínimos de cobertura (módulos activos): ~75 % líneas, ~70 % funciones. Tras `npm run test:report` la cobertura típica supera ~85 % en líneas.
+Umbrales mínimos de cobertura (módulos activos): ~90 % líneas, ~96 % funciones. Tras `npm run test:report` la cobertura típica supera **~94 % en líneas** y **~90 % en statements**.
 
 Para E2E autenticado, define en `.env`:
 

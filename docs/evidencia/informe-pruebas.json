@@ -1,118 +1,302 @@
 {
-  "generadoEn": "2026-07-05 19:37:46",
+  "generadoEn": "2026-07-05 19:48:47",
   "exito": true,
   "tests": {
-    "pasados": 64,
-    "total": 64
+    "pasados": 84,
+    "total": 84,
+    "suites": 19
   },
   "cobertura": {
-    "statements": 83,
-    "branches": 60.36,
-    "functions": 71.42,
-    "lines": 85.48
+    "statements": {
+      "total": 559,
+      "covered": 505,
+      "skipped": 0,
+      "pct": 90.33
+    },
+    "branches": {
+      "total": 164,
+      "covered": 104,
+      "skipped": 0,
+      "pct": 63.41
+    },
+    "functions": {
+      "total": 119,
+      "covered": 115,
+      "skipped": 0,
+      "pct": 96.63
+    },
+    "lines": {
+      "total": 489,
+      "covered": 459,
+      "skipped": 0,
+      "pct": 93.86
+    }
   },
-  "modulos": [
+  "grupos": [
     {
-      "archivo": "modules/project-amenities/controllers/proyecto-equipamiento.controller.ts",
-      "lines": 100,
-      "functions": 100,
-      "branches": 100
+      "modulo": "modules/project-amenities/controllers",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
     },
     {
-      "archivo": "modules/typologies/controllers/tipologias.controller.ts",
-      "lines": 100,
-      "functions": 100,
-      "branches": 100
+      "modulo": "modules/project-amenities/repositories",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
     },
     {
-      "archivo": "modules/projects/repositories/catalogo-proyectos.repository.ts",
-      "lines": 96.66,
-      "functions": 100,
-      "branches": 77.77
+      "modulo": "modules/project-images/repositories",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
     },
     {
-      "archivo": "modules/project-images/controllers/proyecto-imagenes.controller.ts",
-      "lines": 95.45,
+      "modulo": "modules/projects/controllers",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
+    {
+      "modulo": "modules/storage/services",
+      "cobertura": {
+        "statements": 100,
+        "branches": 62.5,
+        "functions": 100,
+        "lines": 100
+      }
+    },
+    {
+      "modulo": "modules/typologies/controllers",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
+    {
+      "modulo": "modules/typologies/repositories",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
+    {
+      "modulo": "modules/typology-images/repositories",
+      "cobertura": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
+    {
+      "modulo": "modules/projects/repositories",
+      "cobertura": {
+        "statements": 96.23,
+        "branches": 83.33,
+        "functions": 100,
+        "lines": 97.78
+      }
+    },
+    {
+      "modulo": "modules/project-images/controllers",
+      "cobertura": {
+        "statements": 95.83,
+        "branches": 100,
+        "functions": 80,
+        "lines": 95.45
+      }
+    },
+    {
+      "modulo": "modules/typology-images/controllers",
+      "cobertura": {
+        "statements": 95.83,
+        "branches": 100,
+        "functions": 80,
+        "lines": 95.45
+      }
+    },
+    {
+      "modulo": "modules/projects/services",
+      "cobertura": {
+        "statements": 84.78,
+        "branches": 70.31,
+        "functions": 100,
+        "lines": 92.41
+      }
+    },
+    {
+      "modulo": "modules/project-amenities/services",
+      "cobertura": {
+        "statements": 81.25,
+        "branches": 33.33,
+        "functions": 100,
+        "lines": 92.11
+      }
+    },
+    {
+      "modulo": "modules/typologies/services",
+      "cobertura": {
+        "statements": 82,
+        "branches": 50,
+        "functions": 90.91,
+        "lines": 88.1
+      }
+    },
+    {
+      "modulo": "modules/project-images/services",
+      "cobertura": {
+        "statements": 83.02,
+        "branches": 61.9,
+        "functions": 88.89,
+        "lines": 87.23
+      }
+    },
+    {
+      "modulo": "modules/typology-images/services",
+      "cobertura": {
+        "statements": 81.63,
+        "branches": 47.06,
+        "functions": 100,
+        "lines": 84.09
+      }
+    }
+  ],
+  "archivos": [
+    {
+      "ruta": "modules/project-amenities/controllers/proyecto-equipamiento.controller.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    {
+      "ruta": "modules/project-amenities/repositories/proyecto-equipamiento.repository.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    {
+      "ruta": "modules/project-amenities/services/proyecto-equipamiento.service.ts",
+      "statements": 81.25,
+      "branches": 33.33,
+      "functions": 100,
+      "lines": 92.1
+    },
+    {
+      "ruta": "modules/project-images/controllers/proyecto-imagenes.controller.ts",
+      "statements": 95.83,
+      "branches": 100,
       "functions": 80,
-      "branches": 100
+      "lines": 95.45
     },
     {
-      "archivo": "modules/typology-images/controllers/tipologia-imagenes.controller.ts",
-      "lines": 95.45,
-      "functions": 80,
-      "branches": 100
-    },
-    {
-      "archivo": "modules/projects/controllers/proyectos.controller.ts",
-      "lines": 93.54,
-      "functions": 71.42,
-      "branches": 50
-    },
-    {
-      "archivo": "modules/storage/services/s3.service.ts",
-      "lines": 92.59,
+      "ruta": "modules/project-images/repositories/proyecto-imagenes.repository.ts",
+      "statements": 100,
+      "branches": 100,
       "functions": 100,
-      "branches": 56.25
+      "lines": 100
     },
     {
-      "archivo": "modules/projects/services/proyectos.service.ts",
-      "lines": 92.4,
-      "functions": 100,
-      "branches": 70.31
-    },
-    {
-      "archivo": "modules/project-amenities/services/proyecto-equipamiento.service.ts",
-      "lines": 92.1,
-      "functions": 100,
-      "branches": 33.33
-    },
-    {
-      "archivo": "modules/typologies/services/tipologias.service.ts",
-      "lines": 88.09,
-      "functions": 90.9,
-      "branches": 50
-    },
-    {
-      "archivo": "modules/project-images/services/proyecto-imagenes.service.ts",
-      "lines": 87.23,
+      "ruta": "modules/project-images/services/proyecto-imagenes.service.ts",
+      "statements": 83.01,
+      "branches": 61.9,
       "functions": 88.88,
-      "branches": 61.9
+      "lines": 87.23
     },
     {
-      "archivo": "modules/typology-images/services/tipologia-imagenes.service.ts",
-      "lines": 84.09,
+      "ruta": "modules/projects/controllers/proyectos.controller.ts",
+      "statements": 100,
+      "branches": 100,
       "functions": 100,
-      "branches": 47.05
+      "lines": 100
     },
     {
-      "archivo": "modules/projects/repositories/proyectos.repository.ts",
-      "lines": 73.33,
-      "functions": 57.14,
-      "branches": 66.66
+      "ruta": "modules/projects/repositories/catalogo-proyectos.repository.ts",
+      "statements": 94.44,
+      "branches": 77.77,
+      "functions": 100,
+      "lines": 96.66
     },
     {
-      "archivo": "modules/project-amenities/repositories/proyecto-equipamiento.repository.ts",
-      "lines": 45.45,
-      "functions": 0,
-      "branches": 100
+      "ruta": "modules/projects/repositories/proyectos.repository.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
     },
     {
-      "archivo": "modules/project-images/repositories/proyecto-imagenes.repository.ts",
-      "lines": 35.71,
-      "functions": 0,
-      "branches": 100
+      "ruta": "modules/projects/services/proyectos.service.ts",
+      "statements": 84.78,
+      "branches": 70.31,
+      "functions": 100,
+      "lines": 92.4
     },
     {
-      "archivo": "modules/typologies/repositories/tipologias.repository.ts",
-      "lines": 35.71,
-      "functions": 0,
-      "branches": 100
+      "ruta": "modules/storage/services/s3.service.ts",
+      "statements": 100,
+      "branches": 62.5,
+      "functions": 100,
+      "lines": 100
     },
     {
-      "archivo": "modules/typology-images/repositories/tipologia-imagenes.repository.ts",
-      "lines": 35.71,
-      "functions": 0,
-      "branches": 100
+      "ruta": "modules/typologies/controllers/tipologias.controller.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    {
+      "ruta": "modules/typologies/repositories/tipologias.repository.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    {
+      "ruta": "modules/typologies/services/tipologias.service.ts",
+      "statements": 82,
+      "branches": 50,
+      "functions": 90.9,
+      "lines": 88.09
+    },
+    {
+      "ruta": "modules/typology-images/controllers/tipologia-imagenes.controller.ts",
+      "statements": 95.83,
+      "branches": 100,
+      "functions": 80,
+      "lines": 95.45
+    },
+    {
+      "ruta": "modules/typology-images/repositories/tipologia-imagenes.repository.ts",
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    {
+      "ruta": "modules/typology-images/services/tipologia-imagenes.service.ts",
+      "statements": 81.63,
+      "branches": 47.05,
+      "functions": 100,
+      "lines": 84.09
     }
   ]
 }

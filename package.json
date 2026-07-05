@@ -16,8 +16,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "pretest:report": "node -e \"require('fs').mkdirSync('test-results',{recursive:true})\"",
-    "test:report": "jest --coverage --json --outputFile=test-results/jest-results.json && node scripts/generar-informe-pruebas.mjs",
+    "test:report": "node scripts/ejecutar-informe-pruebas.mjs",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky"
   },
