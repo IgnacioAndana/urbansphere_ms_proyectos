@@ -196,25 +196,33 @@ curl -X POST http://localhost:3002/proyectos \
   -d "{\"titulo\":\"Edificio Vista Parque\",\"direccion\":\"Av. Providencia 1234\",\"comuna\":\"Providencia\",\"tipo\":\"departamento\",\"fechaEntregaEstimada\":\"2027-06-30\",\"latitud\":-33.4489,\"longitud\":-70.6693,\"descripcion\":\"Proyecto residencial\",\"estado\":\"borrador\"}"
 ```
 
-#### GET `/proyectos` — Listar proyectos
+#### GET `/proyectos` — Listar proyectos (público)
 
 ```bash
+# Sin token — catálogo público (solo proyectos activos)
+curl -X GET http://localhost:3002/proyectos
+
+# Con token — admin/agent ven todos los estados
 curl -X GET http://localhost:3002/proyectos \
   -H "Authorization: Bearer TU_TOKEN_ACCESO"
 ```
 
-> Usuarios `user` solo ven proyectos con `estado: activo`.
-
-#### POST `/proyectos/catalogo` — Ficha resumida por lote de IDs
+#### POST `/proyectos/catalogo` — Ficha resumida por lote de IDs (público)
 
 ```bash
+# Sin token
+curl -X POST http://localhost:3002/proyectos/catalogo \
+  -H "Content-Type: application/json" \
+  -d "{\"ids\":[12,34]}"
+
+# Con token (favoritos logueado; admin/agent incluye inactivos en items)
 curl -X POST http://localhost:3002/proyectos/catalogo \
   -H "Authorization: Bearer TU_TOKEN_ACCESO" \
   -H "Content-Type: application/json" \
   -d "{\"ids\":[12,34]}"
 ```
 
-Devuelve agregados de tipologías (precio desde UF, dormitorios, baños, m²), `urlPortada` e `omitidos` para IDs no encontrados o inactivos (rol `user`).
+Devuelve agregados de tipologías (precio desde UF, dormitorios, baños, m²), `urlPortada` e `omitidos` para IDs no encontrados o inactivos (visitante anónimo = solo activos).
 
 #### GET `/proyectos/:id` — Obtener proyecto
 
@@ -301,8 +309,8 @@ curl -X PUT http://localhost:3002/proyectos/1/equipamiento \
 | Método | Ruta | Descripción | Roles |
 |--------|------|-------------|-------|
 | POST | `/proyectos` | Crear proyecto (+ evento RabbitMQ) | admin, agent |
-| GET | `/proyectos` | Listar proyectos | admin, agent, user |
-| POST | `/proyectos/catalogo` | Ficha resumida batch por IDs (favoritos, catálogo) | admin, agent, user |
+| GET | `/proyectos` | Listar proyectos | **Público** (solo activos); admin/agent con JWT ven todos |
+| POST | `/proyectos/catalogo` | Ficha resumida batch por IDs | **Público** (solo activos); admin/agent con JWT ven todos |
 | GET | `/proyectos/:id` | Obtener proyecto | admin, agent, user |
 | PATCH | `/proyectos/:id` | Actualizar proyecto | admin, agent |
 | DELETE | `/proyectos/:id` | Eliminar proyecto | admin, agent |

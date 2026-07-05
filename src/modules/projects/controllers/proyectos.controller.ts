@@ -24,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { ROLES } from '../../../common/constants/app.constants';
 import { Roles } from '../../../common/decorators/roles.decorator';
+import { Public } from '../../../common/decorators/public.decorator';
 import { UsuarioActual } from '../../../common/decorators/usuario-actual.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -51,26 +52,32 @@ export class ProyectosControlador {
   }
 
   @Get()
-  @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
+  @Public()
   @ApiOperation({
-    summary: 'Listar proyectos (user: solo activos; admin/agent: todos)',
+    summary:
+      'Listar proyectos (público: solo activos; con JWT admin/agent: todos)',
   })
   @ApiResponse({ status: 200, type: [RespuestaProyectoDto] })
-  listarProyectos(@UsuarioActual() usuario: CargaJwt): Promise<RespuestaProyectoDto[]> {
-    return this.proyectosServicio.listarProyectos(usuario.rol);
+  listarProyectos(
+    @UsuarioActual() usuario?: CargaJwt,
+  ): Promise<RespuestaProyectoDto[]> {
+    const rol = usuario?.rol ?? ROLES.USER;
+    return this.proyectosServicio.listarProyectos(rol);
   }
 
   @Post('catalogo')
-  @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
+  @Public()
   @ApiOperation({
-    summary: 'Catálogo batch — ficha resumida por lote de IDs (favoritos, listados)',
+    summary:
+      'Catálogo batch por IDs (público: solo activos; con JWT admin/agent: todos los estados)',
   })
   @ApiResponse({ status: 200, type: ConsultarCatalogoResponseDto })
   consultarCatalogo(
     @Body() dto: ConsultarCatalogoDto,
-    @UsuarioActual() usuario: CargaJwt,
+    @UsuarioActual() usuario?: CargaJwt,
   ): Promise<ConsultarCatalogoResponseDto> {
-    return this.proyectosServicio.consultarCatalogo(dto.ids, usuario.rol);
+    const rol = usuario?.rol ?? ROLES.USER;
+    return this.proyectosServicio.consultarCatalogo(dto.ids, rol);
   }
 
   @Get(':id')
