@@ -14,6 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ROLES } from '../../../common/constants/app.constants';
+import { Public } from '../../../common/decorators/public.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -45,8 +46,9 @@ export class TipologiaImagenesControlador {
   }
 
   @Get()
+  @Public()
   @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
-  @ApiOperation({ summary: 'Listar imágenes de una tipología' })
+  @ApiOperation({ summary: 'Listar imágenes de una tipología (público)' })
   @ApiResponse({ status: 200, type: [RespuestaTipologiaImagenDto] })
   listarImagenes(
     @Param('proyectoId', ParseIntPipe) proyectoId: number,

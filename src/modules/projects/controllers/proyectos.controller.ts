@@ -81,14 +81,19 @@ export class ProyectosControlador {
   }
 
   @Get(':id')
+  @Public()
   @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
-  @ApiOperation({ summary: 'Obtener proyecto por ID' })
+  @ApiOperation({
+    summary:
+      'Obtener proyecto por ID (público: solo activos; con JWT admin/agent: todos)',
+  })
   @ApiResponse({ status: 200, type: RespuestaProyectoDto })
   buscarProyectoPorId(
     @Param('id', ParseIntPipe) id: number,
-    @UsuarioActual() usuario: CargaJwt,
+    @UsuarioActual() usuario?: CargaJwt,
   ): Promise<RespuestaProyectoDto> {
-    return this.proyectosServicio.buscarProyectoPorId(id, usuario.rol);
+    const rol = usuario?.rol ?? ROLES.USER;
+    return this.proyectosServicio.buscarProyectoPorId(id, rol);
   }
 
   @Patch(':id')

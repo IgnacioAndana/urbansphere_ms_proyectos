@@ -27,6 +27,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ROLES } from '../../../common/constants/app.constants';
+import { Public } from '../../../common/decorators/public.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -57,8 +58,9 @@ export class ProyectoImagenesControlador {
   }
 
   @Get()
+  @Public()
   @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
-  @ApiOperation({ summary: 'Listar imágenes de un proyecto' })
+  @ApiOperation({ summary: 'Listar imágenes de un proyecto (público)' })
   @ApiResponse({ status: 200, type: [RespuestaProyectoImagenDto] })
   listarImagenes(
     @Param('proyectoId', ParseIntPipe) proyectoId: number,

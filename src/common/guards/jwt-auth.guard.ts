@@ -23,7 +23,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ]);
 
     if (esPublica) {
-      return true;
+      const peticion = contexto.switchToHttp().getRequest<{ headers: { authorization?: string } }>();
+      if (!peticion.headers.authorization) {
+        return true;
+      }
     }
 
     return super.canActivate(contexto);

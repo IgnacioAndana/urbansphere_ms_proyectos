@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ROLES } from '../../../common/constants/app.constants';
+import { Public } from '../../../common/decorators/public.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -38,8 +39,9 @@ export class TipologiasControlador {
   }
 
   @Get()
+  @Public()
   @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
-  @ApiOperation({ summary: 'Listar tipologías de un proyecto' })
+  @ApiOperation({ summary: 'Listar tipologías de un proyecto (público)' })
   @ApiResponse({ status: 200, type: [RespuestaTipologiaDto] })
   listarTipologias(
     @Param('proyectoId', ParseIntPipe) proyectoId: number,
@@ -48,8 +50,9 @@ export class TipologiasControlador {
   }
 
   @Get(':id')
+  @Public()
   @Roles(ROLES.ADMIN, ROLES.AGENT, ROLES.USER)
-  @ApiOperation({ summary: 'Obtener tipología por ID' })
+  @ApiOperation({ summary: 'Obtener tipología por ID (público)' })
   @ApiResponse({ status: 200, type: RespuestaTipologiaDto })
   buscarTipologia(
     @Param('proyectoId', ParseIntPipe) proyectoId: number,

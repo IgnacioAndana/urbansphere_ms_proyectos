@@ -12,6 +12,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { ROLES } from '../constants/app.constants';
+import { CLAVE_RUTA_PUBLICA } from '../decorators/public.decorator';
 import { ROLES_CLAVE } from '../decorators/roles.decorator';
 import { CargaJwt } from '../../modules/auth/interfaces/carga-jwt.interface';
 
@@ -29,10 +31,23 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const peticion = contexto.switchToHttp().getRequest<{ user: CargaJwt }>();
+    const peticion = contexto.switchToHttp().getRequest<{ user?: CargaJwt }>();
     const usuario = peticion.user;
 
-    if (!usuario?.rol || !rolesPermitidos.includes(usuario.rol)) {
+    if (!usuario?.rol) {
+      const esPublica = this.reflector.getAllAndOverride<boolean>(CLAVE_RUTA_PUBLICA, [
+        contexto.getHandler(),
+        contexto.getClass(),
+      ]);
+
+      if (esPublica && rolesPermitidos.includes(ROLES.USER)) {
+        return true;
+      }
+
+      throw new ForbiddenException('No tienes permisos para esta acción');
+    }
+
+    if (!rolesPermitidos.includes(usuario.rol)) {
       throw new ForbiddenException('No tienes permisos para esta acción');
     }
 
