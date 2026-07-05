@@ -82,7 +82,7 @@ describe('Proyectos (e2e)', () => {
     expect(respuesta.body.estado).toBe('activo');
   });
 
-  it('GET /proyectos — sin JWT debe retornar 401', () => {
-    return request(app.getHttpServer()).get('/proyectos').expect(401);
+  it('GET /proyectos — público sin JWT retorna 200', () => {
+    return request(app.getHttpServer()).get('/proyectos').expect(200);
   });
 });

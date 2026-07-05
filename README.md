@@ -409,10 +409,25 @@ Si RabbitMQ no está disponible, el servicio registra un warning y continúa.
 ## Tests
 
 ```bash
-npm run test        # Unitarios
-npm run test:cov    # Cobertura
-npm run test:e2e    # E2E — requiere .env con BD accesible
+npm run test           # Unitarios (Jest)
+npm run test:cov       # Cobertura en consola + HTML
+npm run test:report    # Cobertura + informe Markdown/JSON para documentación
+npm run test:e2e       # E2E — requiere .env con BD accesible
 ```
+
+### Informe evidenciable (documentación del proyecto)
+
+Tras ejecutar `npm run test:report` se generan:
+
+| Archivo | Uso |
+|---------|-----|
+| `docs/evidencia/informe-pruebas.md` | Resumen en Markdown (adjuntar al informe del curso) |
+| `docs/evidencia/informe-pruebas.json` | Datos estructurados (CI, dashboards) |
+| `coverage/lcov-report/index.html` | Cobertura interactiva por archivo (capturas para el informe) |
+
+Las pruebas se ejecutan **en local** antes de mergear a `main`. El deploy en EC2 **no corre tests** automáticamente.
+
+Umbrales mínimos de cobertura (módulos activos): ~75 % líneas, ~70 % funciones. Tras `npm run test:report` la cobertura típica supera ~85 % en líneas.
 
 Para E2E autenticado, define en `.env`:
 

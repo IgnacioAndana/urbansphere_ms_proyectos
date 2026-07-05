@@ -43,6 +43,7 @@ describe('ProyectosControlador', () => {
             listarProyectos: jest.fn(),
             actualizarProyecto: jest.fn(),
             eliminarProyecto: jest.fn(),
+            consultarCatalogo: jest.fn(),
           },
         },
       ],
@@ -73,5 +74,11 @@ describe('ProyectosControlador', () => {
     servicio.buscarProyectoPorId.mockResolvedValue(respuestaMock);
     const resultado = await controlador.buscarProyectoPorId(1, usuarioAdmin);
     expect(resultado.titulo).toBe('Edificio Vista Parque');
+  });
+
+  it('debe consultar catálogo por ids', async () => {
+    servicio.consultarCatalogo.mockResolvedValue({ items: [], omitidos: [] });
+    const resultado = await controlador.consultarCatalogo({ ids: [1, 2] }, usuarioAdmin);
+    expect(resultado.items).toEqual([]);
   });
 });

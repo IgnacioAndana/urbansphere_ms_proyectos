@@ -1,0 +1,118 @@
+{
+  "generadoEn": "2026-07-05 19:37:46",
+  "exito": true,
+  "tests": {
+    "pasados": 64,
+    "total": 64
+  },
+  "cobertura": {
+    "statements": 83,
+    "branches": 60.36,
+    "functions": 71.42,
+    "lines": 85.48
+  },
+  "modulos": [
+    {
+      "archivo": "modules/project-amenities/controllers/proyecto-equipamiento.controller.ts",
+      "lines": 100,
+      "functions": 100,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/typologies/controllers/tipologias.controller.ts",
+      "lines": 100,
+      "functions": 100,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/projects/repositories/catalogo-proyectos.repository.ts",
+      "lines": 96.66,
+      "functions": 100,
+      "branches": 77.77
+    },
+    {
+      "archivo": "modules/project-images/controllers/proyecto-imagenes.controller.ts",
+      "lines": 95.45,
+      "functions": 80,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/typology-images/controllers/tipologia-imagenes.controller.ts",
+      "lines": 95.45,
+      "functions": 80,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/projects/controllers/proyectos.controller.ts",
+      "lines": 93.54,
+      "functions": 71.42,
+      "branches": 50
+    },
+    {
+      "archivo": "modules/storage/services/s3.service.ts",
+      "lines": 92.59,
+      "functions": 100,
+      "branches": 56.25
+    },
+    {
+      "archivo": "modules/projects/services/proyectos.service.ts",
+      "lines": 92.4,
+      "functions": 100,
+      "branches": 70.31
+    },
+    {
+      "archivo": "modules/project-amenities/services/proyecto-equipamiento.service.ts",
+      "lines": 92.1,
+      "functions": 100,
+      "branches": 33.33
+    },
+    {
+      "archivo": "modules/typologies/services/tipologias.service.ts",
+      "lines": 88.09,
+      "functions": 90.9,
+      "branches": 50
+    },
+    {
+      "archivo": "modules/project-images/services/proyecto-imagenes.service.ts",
+      "lines": 87.23,
+      "functions": 88.88,
+      "branches": 61.9
+    },
+    {
+      "archivo": "modules/typology-images/services/tipologia-imagenes.service.ts",
+      "lines": 84.09,
+      "functions": 100,
+      "branches": 47.05
+    },
+    {
+      "archivo": "modules/projects/repositories/proyectos.repository.ts",
+      "lines": 73.33,
+      "functions": 57.14,
+      "branches": 66.66
+    },
+    {
+      "archivo": "modules/project-amenities/repositories/proyecto-equipamiento.repository.ts",
+      "lines": 45.45,
+      "functions": 0,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/project-images/repositories/proyecto-imagenes.repository.ts",
+      "lines": 35.71,
+      "functions": 0,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/typologies/repositories/tipologias.repository.ts",
+      "lines": 35.71,
+      "functions": 0,
+      "branches": 100
+    },
+    {
+      "archivo": "modules/typology-images/repositories/tipologia-imagenes.repository.ts",
+      "lines": 35.71,
+      "functions": 0,
+      "branches": 100
+    }
+  ]
+}
