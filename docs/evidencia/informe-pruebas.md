@@ -1,6 +1,6 @@
 # Informe de pruebas — MS Proyectos (UrbanSphere)
 
-> Generado automáticamente el **2026-07-05 19:50:35 UTC**.  
+> Generado automáticamente el **2026-07-05 20:30:50 UTC**.  
 > Comando: `npm run test:report`
 
 ## Resumen ejecutivo
